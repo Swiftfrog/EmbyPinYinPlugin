@@ -10,7 +10,7 @@ using System.Threading.Tasks; // Task
 using System.Collections.Generic; // IEnumerable, List
 using System; // Exception, ArgumentException
 using EmbyPinyinPlugin.Utils; // PinyinHelper
-using Microsoft.Extensions.Logging; // ILogger<T> (如果插件主类使用了这个)
+//using Microsoft.Extensions.Logging; // ILogger<T> (如果插件主类使用了这个)
 using System.Linq; // 用于 ToList() 和 Contains() 扩展方法
 
 namespace EmbyPinyinPlugin.Tasks
@@ -21,14 +21,14 @@ namespace EmbyPinyinPlugin.Tasks
     public class PinyinUpdateTask : IScheduledTask
     {
         private readonly ILibraryManager _libraryManager;
-        private readonly ILogger<PinyinUpdateTask> _logger; // 使用泛型 ILogger
+        private readonly ILogger _logger; // 修改为非泛型 ILogger
 
         /// <summary>
         /// 构造函数，通过依赖注入获取所需服务。
         /// </summary>
         /// <param name="libraryManager">Emby 的库管理器。</param>
         /// <param name="logger">日志记录器。</param>
-        public PinyinUpdateTask(ILibraryManager libraryManager, ILogger<PinyinUpdateTask> logger)
+        public PinyinUpdateTask(ILibraryManager libraryManager, ILogger logger) // 修改为非泛型 ILogger
         {
             _libraryManager = libraryManager;
             _logger = logger;
