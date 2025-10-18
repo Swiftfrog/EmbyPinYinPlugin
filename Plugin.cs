@@ -1,24 +1,25 @@
 // Plugin.cs
-using MediaBrowser.Common.Configuration; // IConfigurationManager, IApplicationPaths
+using MediaBrowser.Common.Configuration; // IConfigurationManager
 using MediaBrowser.Common.Plugins; // IPlugin, BasePlugin
 using MediaBrowser.Model.Plugins; // BasePluginConfiguration
-using MediaBrowser.Model.Serialization; // IJsonSerializer (IXmlSerializer 的实现可能在这里或相关包)
+using MediaBrowser.Model.Serialization; // IJsonSerializer
 using System;
 // IApplicationHost 在 MediaBrowser.Common 命名空间下
 using MediaBrowser.Common; 
+// 引入你的提供者命名空间
+using EmbyPinyinPlugin.Providers;
 
 namespace EmbyPinyinPlugin
 {
     public class Plugin : BasePlugin<PluginConfiguration>, IPlugin
     {
-        // 通常插件主类不需要这些服务的实例，但构造函数必须匹配
-        public Plugin(IApplicationPaths applicationPaths, IXmlSerializer xmlSerializer) : base(applicationPaths, xmlSerializer) // 使用正确的参数
+        public Plugin(IApplicationPaths applicationPaths, IXmlSerializer xmlSerializer, IConfigurationManager configurationManager) : base(applicationPaths, xmlSerializer, configurationManager)
         {
         }
 
         public override string Name => "PinyinSorter";
 
-        public override Guid Id => Guid.Parse("71C46E3B-3EB8-0D38-E047-19952D0508B2"); // 请替换成你生成的全新 GUID
+        public override Guid Id => Guid.Parse("B250C7F4-4E2B-4E7C-8B9A-123456789ABC"); // 请替换成你生成的全新 GUID
 
         public override string Description => "Adds pinyin initials to media items for sorting and searching.";
     }
