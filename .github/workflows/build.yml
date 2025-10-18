@@ -38,20 +38,19 @@ jobs:
       run: |
         # 切换到输出目录
         cd ./bin/Release/net8.0/
-        # 创建一个包含所有 DLL 文件的 ZIP，并且 ZIP 根目录就是 DLL 文件
+        # 创建一个包含所有 DLL 文件的 ZIP，并且 ZIP 放在 *当前* 目录下 (即 ./bin/Release/net8.0/)
         # zip -j 将所有文件直接放入 ZIP 根目录，不保留路径
-        zip -j ../EmbyPinyinPlugin-${{ github.sha }}.zip *.dll
+        zip -j EmbyPinyinPlugin-${{ github.sha }}.zip *.dll
         # 验证 ZIP 内容
-        echo "Contents of the created ZIP:"
-        unzip -l ../EmbyPinyinPlugin-${{ github.sha }}.zip
-        # 切换回工作目录
-        cd -
+        echo "Contents of the created ZIP in $(pwd):"
+        unzip -l EmbyPinyinPlugin-${{ github.sha }}.zip
+        # 不需要切换回工作目录，因为下一步的 path 是相对于工作目录的
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
       with:
         name: EmbyPinyinPlugin-${{ github.sha }} # 生成的文件名包含提交 SHA
-        # 上传我们刚刚创建的包含所有 DLL 的 ZIP 文件
+        # 上传我们刚刚创建的包含所有 DLL 的 ZIP 文件 (现在在正确的目录下)
         path: ./bin/Release/net8.0/EmbyPinyinPlugin-${{ github.sha }}.zip
         if-no-files-found: error # 如果没找到文件，工作流失败
         retention-days: 30 # 保留 30 天
