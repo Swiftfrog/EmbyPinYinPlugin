@@ -3,12 +3,12 @@ name: Build Emby Plugin
 on:
   # 允许手动触发
   workflow_dispatch:
-  # # 在推送到 main 分支时触发
-  # push:
-  #   branches: [ "main" ]
-  # # 在创建 Pull Request 时触发
-  # pull_request:
-  #   branches: [ "main" ]
+  # 在推送到 main 分支时触发
+  push:
+    branches: [ "main" ]
+  # 在创建 Pull Request 时触发
+  pull_request:
+    branches: [ "main" ]
 
 jobs:
   build:
@@ -30,27 +30,27 @@ jobs:
       run: dotnet build --no-restore --configuration Release
 
     # 添加一个步骤来检查编译输出目录，方便调试
-    - name: List build output (after build)
-      run: find . -name "*.dll" -type f -path "./**/bin/Release/net8.0/*" -ls
+    - name: List build output (after Fody)
+      run: find . -name "EmbyPinyinPlugin.dll" -type f -path "./**/bin/Release/net8.0/*" -ls
 
-    # --- 关键步骤：创建包含所有 DLL 的 ZIP ---
-    - name: Create ZIP with all DLLs
+    # --- 创建仅包含主 DLL 的 ZIP ---
+    - name: Create ZIP with main DLL only
       run: |
         # 切换到输出目录
         cd ./bin/Release/net8.0/
-        # 创建一个包含所有 DLL 文件的 ZIP，并且 ZIP 放在 *当前* 目录下 (即 ./bin/Release/net8.0/)
-        # zip -j 将所有文件直接放入 ZIP 根目录，不保留路径
-        zip -j EmbyPinyinPlugin-${{ github.sha }}.zip *.dll
+        # 创建一个只包含 EmbyPinyinPlugin.dll 的 ZIP
+        zip -j ../EmbyPinyinPlugin-${{ github.sha }}.zip EmbyPinyinPlugin.dll
         # 验证 ZIP 内容
-        echo "Contents of the created ZIP in $(pwd):"
-        unzip -l EmbyPinyinPlugin-${{ github.sha }}.zip
-        # 不需要切换回工作目录，因为下一步的 path 是相对于工作目录的
+        echo "Contents of the created ZIP:"
+        unzip -l ../EmbyPinyinPlugin-${{ github.sha }}.zip
+        # 切换回工作目录
+        cd -
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
       with:
         name: EmbyPinyinPlugin-${{ github.sha }} # 生成的文件名包含提交 SHA
-        # 上传我们刚刚创建的包含所有 DLL 的 ZIP 文件 (现在在正确的目录下)
+        # 上传我们刚刚创建的包含主 DLL 的 ZIP 文件
         path: ./bin/Release/net8.0/EmbyPinyinPlugin-${{ github.sha }}.zip
         if-no-files-found: error # 如果没找到文件，工作流失败
         retention-days: 30 # 保留 30 天
