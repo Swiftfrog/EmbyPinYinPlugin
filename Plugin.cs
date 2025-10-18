@@ -6,7 +6,8 @@ using MediaBrowser.Model.Serialization; // IJsonSerializer
 using MediaBrowser.Model.Tasks; // IScheduledTask
 using System;
 using System.Collections.Generic; // List
-using Microsoft.Extensions.DependencyInjection; // IServiceCollection (新增)
+using MediaBrowser.Model.Services
+//using Microsoft.Extensions.DependencyInjection; // IServiceCollection (新增)
 // IApplicationHost 在 MediaBrowser.Common 命名空间下
 using MediaBrowser.Common; 
 // 引入你的提供者和任务命名空间
