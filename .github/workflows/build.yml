@@ -30,10 +30,9 @@ jobs:
       run: dotnet build --no-restore --configuration Release
 
     # 添加一个步骤来检查编译输出目录，方便调试
-    - name: List build output
+    - name: List build output (after ILRepack)
       run: find . -name "EmbyPinyinPlugin.dll" -type f -path "./**/bin/Release/net8.0/*" -ls
 
-    # --- 新增步骤：创建自定义 ZIP ---
     - name: Create ZIP without directory structure
       run: |
         # 确保目标文件存在
