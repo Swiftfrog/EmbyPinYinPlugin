@@ -15,6 +15,8 @@
     <PackageReference Include="mediabrowser.server.core" Version="4.9.1.80" />
     <!-- 使用 TinyPinyin -->
     <PackageReference Include="TinyPinyin" Version="1.1.0" />
+    <!-- 添加对 Microsoft.Extensions.Logging.Abstractions 的引用 -->
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.0" />
   </ItemGroup>
 
 </Project>
