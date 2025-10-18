@@ -3,16 +3,12 @@ using MediaBrowser.Common.Configuration; // IConfigurationManager
 using MediaBrowser.Common.Plugins; // IPlugin, BasePlugin
 using MediaBrowser.Model.Plugins; // BasePluginConfiguration
 using MediaBrowser.Model.Serialization; // IJsonSerializer
-using MediaBrowser.Model.Tasks; // IScheduledTask
 using System;
-using System.Collections.Generic; // List
-using MediaBrowser.Model.Services
-//using Microsoft.Extensions.DependencyInjection; // IServiceCollection (新增)
 // IApplicationHost 在 MediaBrowser.Common 命名空间下
 using MediaBrowser.Common; 
 // 引入你的提供者和任务命名空间
 using EmbyPinyinPlugin.Providers;
-using EmbyPinyinPlugin.Tasks;
+// using EmbyPinyinPlugin.Services; // 不需要引用 Services (如果已创建)
 
 namespace EmbyPinyinPlugin
 {
@@ -27,15 +23,6 @@ namespace EmbyPinyinPlugin
         public override Guid Id => Guid.Parse("B250C7F4-4E2B-4E7C-8B9A-123456789ABC"); // 请替换成你生成的全新 GUID
 
         public override string Description => "Adds pinyin initials to media items for sorting and searching.";
-
-        // 注册服务，包括计划任务
-        public override void RegisterServices(IServiceCollection serviceCollection)
-        {
-            base.RegisterServices(serviceCollection);
-
-            // 注册计划任务
-            serviceCollection.AddSingleton<IScheduledTask, PinyinUpdateTask>();
-        }
     }
 
     public class PluginConfiguration : BasePluginConfiguration
