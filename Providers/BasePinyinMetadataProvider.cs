@@ -41,30 +41,24 @@ namespace EmbyPinyinPlugin.Providers
             IDirectoryService directoryService,
             CancellationToken cancellationToken)
         {
-            // --- 调试代码开始 (仅用于测试) ---
-            // 你可以选择只保留一个 throw 语句来测试特定条件
-            if (info.Name?.Contains("情书") == true) // 假设你想调试 "情书" 这个项目
+            // --- 最简单的调试代码开始 (仅用于测试) ---
+            // 检查 info.Name 是否为空
+            var debugNameToProcess = info.Name;
+            if (string.IsNullOrEmpty(debugNameToProcess))
             {
-                // 1. 检查 info.Name 是否为空 (使用不同的变量名)
-                var debugNameToProcess = info.Name;
-                if (string.IsNullOrEmpty(debugNameToProcess))
-                {
-                    // 这会触发 Emby 日志中的错误，显示这条消息
-                    throw new Exception($"DEBUG GetMetadata: info.Name is null or empty for item with Id: {info.Id}");
-                }
-
-                // 2. 检查 TinyPinyin 是否能处理名称 (使用不同的变量名)
-                string debugPinyinInitials = PinyinHelper.GetPinyinInitials(debugNameToProcess);
-                if (string.IsNullOrEmpty(debugPinyinInitials))
-                {
-                    // 这会触发 Emby 日志中的错误，显示这条消息
-                    throw new Exception($"DEBUG GetMeta PinyinHelper returned null or empty for debugNameToProcess: '{debugNameToProcess}', item Id: {info.Id}");
-                }
-
-                // 3. 如果你想确认代码执行到了设置 SortName 的地方，可以取消下面的注释
-                // throw new Exception($"DEBUG GetMeta About to create item and set SortName to '{debugPinyinInitials.ToUpper()}' for item Id: {info.Id}, Name: {info.Name}");
+                throw new Exception($"DEBUG GetMeta info.Name is null or empty for item with Id: {info.Id}");
             }
-            // --- 调试代码结束 ---
+            
+            // 检查 TinyPinyin 是否能处理名称
+            string debugPinyinInitials = PinyinHelper.GetPinyinInitials(debugNameToProcess);
+            if (string.IsNullOrEmpty(debugPinyinInitials))
+            {
+                throw new Exception($"DEBUG GetMeta PinyinHelper returned null or empty for debugNameToProcess: '{debugNameToProcess}', item Id: {info.Id}");
+            }
+            
+            // 确认代码执行到这里
+            throw new Exception($"DEBUG GetMeta About to create item and set SortName to '{debugPinyinInitials.ToUpper()}' for item Id: {info.Id}, Name: {info.Name}");
+            // --- 最简单的调试代码结束 ---
 
             // 1. 获取 Name (或 OriginalTitle)
             var nameToProcess = info.Name; // 或 info.OriginalTitle，根据需求
