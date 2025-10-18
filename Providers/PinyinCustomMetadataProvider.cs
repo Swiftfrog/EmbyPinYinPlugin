@@ -8,8 +8,7 @@ using MediaBrowser.Controller.Library; // 包含 ItemUpdateType
 using MediaBrowser.Model.Configuration; // 包含 LibraryOptions
 using System.Threading; // 包含 CancellationToken
 using System.Threading.Tasks; // 包含 Task
-// 移除 Microsoft.Extensions.Logging 的 using
-// using Microsoft.Extensions.Logging; // 包含 ILogger<T>
+using MediaBrowser.Model.Entities; // 包含 MetadataFields
 using System; // 包含 Activator
 using EmbyPinyinPlugin.Utils; // 包含 PinyinHelper
 
