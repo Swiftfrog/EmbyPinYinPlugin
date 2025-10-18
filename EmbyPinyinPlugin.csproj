@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <FileVersion>1.0.0.0</FileVersion>
+    <CopyLocalLockFileAssemblies>True</CopyLocalLockFileAssemblies>
+    <IncludeSourceRevisionInInformationalVersion>true</IncludeSourceRevisionInInformationalVersion>
+    <AssemblyName>EmbyPinyinPlugin</AssemblyName>
+    <RootNamespace>EmbyPinyinPlugin</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- 核心 Emby 依赖 -->
+    <PackageReference Include="mediabrowser.server.core" Version="4.9.1.80" />
+    <!-- 使用 TinyPinyin -->
+    <PackageReference Include="TinyPinyin" Version="1.1.0" />
+  </ItemGroup>
+
+</Project>
