@@ -5,9 +5,8 @@ using MediaBrowser.Model.Plugins; // BasePluginConfiguration
 using MediaBrowser.Model.Serialization; // IJsonSerializer
 using System;
 using MediaBrowser.Common; 
-using MediaBrowser.Model.Tasks; // IScheduledTask
-using EmbyPinyinPlugin.Providers; // PinyinUpdateTask
-using Microsoft.Extensions.Logging; // ILogger
+// 不需要 using System.Collections.Generic; // 因为 Plugin.cs 不再使用 IEnumerable<IScheduledTask>
+// 不需要 using MediaBrowser.Model.Tasks; // 因为 Plugin.cs 不再直接处理 IScheduledTask
 
 namespace EmbyPinyinPlugin
 {
@@ -28,16 +27,11 @@ namespace EmbyPinyinPlugin
 
         public override string Description => "Adds pinyin initials to media items for sorting and searching.";
 
-        // 重写 GetTasks 方法，返回你的计划任务
-        public override IEnumerable<IScheduledTask> GetTasks()
-        {
-            // 使用依赖注入容器获取 ILibraryManager 和 ILogger
-            // 这通常由 Emby 的框架自动处理
-            yield return new PinyinUpdateTask(
-                _applicationPaths.ServiceProvider.GetService<ILibraryManager>(),
-                _applicationPaths.ServiceProvider.GetService<ILogger<PinyinUpdateTask>>()
-            );
-        }
+        // 移除 GetTasks 方法
+        // public override IEnumerable<IScheduledTask> GetTasks()
+        // {
+        //     // ...
+        // }
     }
 
     public class PluginConfiguration : BasePluginConfiguration
