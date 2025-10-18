@@ -17,24 +17,14 @@
     <PackageReference Include="TinyPinyin" Version="1.1.0" />
     <!-- 添加对 Microsoft.Extensions.Logging.Abstractions 的引用 -->
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.0" />
-    <!-- 使用 ILRepack.Lib.MSBuild.Task 替代 ILRepack -->
-    <PackageReference Include="ILRepack.Lib.MSBuild.Task" Version="2.0.18.1" PrivateAssets="All" />
+    <!-- 添加 Costura.Fody 用于合并依赖 -->
+    <PackageReference Include="Costura.Fody" Version="5.7.0" PrivateAssets="All" />
   </ItemGroup>
 
-  <!-- ILRepack 合并依赖 (使用 ILRepack.Lib.MSBuild.Task) -->
-  <Target Name="ILRepack" AfterTargets="Build" Condition="'$(Configuration)' == 'Release'">
-    <ItemGroup>
-      <InputAssemblies Include="$(OutputPath)$(AssemblyName).dll" />
-      <InputAssemblies Include="$(OutputPath)*.dll" Exclude="$(OutputPath)$(AssemblyName).dll" />
-    </ItemGroup>
-    <ILRepack
-      OutputType="$(OutputType)"
-      MainAssembly="$(OutputPath)$(AssemblyName).dll"
-      OutputAssembly="$(OutputPath)$(AssemblyName).dll"
-      InputAssemblies="@(InputAssemblies)"
-      LibraryPath="$(OutputPath)"
-      InternalizeExclude="@(AssemblyAttribute)"
-      />
-  </Target>
+  <!-- Fody 通常会自动运行，无需手动配置 MSBuild Target -->
+  <!-- 但可以添加 FodyWeavers.xml 文件来配置它 -->
+  <ItemGroup>
+    <WeaverFiles Include="$(OutputPath)TinyPinyin.dll" />
+  </ItemGroup>
 
 </Project>
