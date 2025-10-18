@@ -16,7 +16,7 @@ namespace EmbyPinyinPlugin.Providers
     /// 为元数据提供者提供通用的拼音处理逻辑。
     /// </summary>
     /// <typeparam name="T">具体的媒体项类型，如 Movie, Series 等。</typeparam>
-    public abstract class BasePinyinMetadataProvider<T> : ILocalMetadataProvider<T>
+    public abstract class BasePinyinMetadataProvider<T> : ILocalMetadataProvider<T>, IHasOrder // 添加 IHasOrder
         where T : BaseItem
     {
         // 移除 ILogger 字段
@@ -34,6 +34,12 @@ namespace EmbyPinyinPlugin.Providers
         }
 
         public abstract string Name { get; }
+
+        // 实现 IHasOrder 接口
+        // 返回一个较低的数字以获得更高的优先级
+        // 0 通常是最高优先级之一
+        // 你可以尝试 0, 1, 或其他较低的值，看哪个效果最好
+        public int Order => 0;
 
         public async Task<MetadataResult<T>> GetMetadata(
             ItemInfo info,
