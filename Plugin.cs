@@ -1,8 +1,8 @@
 // Plugin.cs
-using MediaBrowser.Common.Configuration; // IConfigurationManager
+using MediaBrowser.Common.Configuration; // IConfigurationManager, IApplicationPaths
 using MediaBrowser.Common.Plugins; // IPlugin, BasePlugin
 using MediaBrowser.Model.Plugins; // BasePluginConfiguration
-using MediaBrowser.Model.Serialization; // IJsonSerializer
+using MediaBrowser.Model.Serialization; // IJsonSerializer (IXmlSerializer 的实现可能在这里或相关包)
 using System;
 // IApplicationHost 在 MediaBrowser.Common 命名空间下
 using MediaBrowser.Common; 
@@ -11,7 +11,8 @@ namespace EmbyPinyinPlugin
 {
     public class Plugin : BasePlugin<PluginConfiguration>, IPlugin
     {
-        public Plugin(IApplicationHost applicationHost) : base(applicationHost) // 只接受 IApplicationHost
+        // 通常插件主类不需要这些服务的实例，但构造函数必须匹配
+        public Plugin(IApplicationPaths applicationPaths, IXmlSerializer xmlSerializer) : base(applicationPaths, xmlSerializer) // 使用正确的参数
         {
         }
 
