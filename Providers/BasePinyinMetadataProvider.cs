@@ -2,6 +2,7 @@
 using MediaBrowser.Controller.Entities;
 using MediaBrowser.Controller.Providers; // 包含 ILocalMetadataProvider, ItemInfo, IDirectoryService
 using MediaBrowser.Model.Configuration; // 包含 LibraryOptions
+using MediaBrowser.Model.Entities; // 包含 MetadataFields (用于 LockedFields)
 using System.Threading; // 包含 CancellationToken
 using System.Threading.Tasks; // 包含 Task
 // 移除 Microsoft.Extensions.Logging 的 using
@@ -40,8 +41,30 @@ namespace EmbyPinyinPlugin.Providers
             IDirectoryService directoryService,
             CancellationToken cancellationToken)
         {
-            // 移除日志记录
-            // _logger?.LogDebug($"Processing GetMetadata for {typeof(T).Name}: {info.Name}");
+            // --- 调试代码开始 (仅用于测试) ---
+            // 你可以选择只保留一个 throw 语句来测试特定条件
+            if (info.Name?.Contains("情书") == true) // 假设你想调试 "情书" 这个项目
+            {
+                // 1. 检查 info.Name 是否为空
+                var nameToProcess = info.Name;
+                if (string.IsNullOrEmpty(nameToProcess))
+                {
+                    // 这会触发 Emby 日志中的错误，显示这条消息
+                    throw new Exception($"DEBUG GetMetadata: info.Name is null or empty for item with Id: {info.Id}");
+                }
+
+                // 2. 检查 TinyPinyin 是否能处理名称
+                string pinyinInitials = PinyinHelper.GetPinyinInitials(nameToProcess);
+                if (string.IsNullOrEmpty(pinyinInitials))
+                {
+                    // 这会触发 Emby 日志中的错误，显示这条消息
+                    throw new Exception($"DEBUG GetMetadata: PinyinHelper returned null or empty for nameToProcess: '{nameToProcess}', item Id: {info.Id}");
+                }
+
+                // 3. 如果你想确认代码执行到了设置 SortName 的地方，可以取消下面的注释
+                // throw new Exception($"DEBUG GetMetadata: About to create item and set SortName to '{pinyinInitials.ToUpper()}' for item Id: {info.Id}, Name: {info.Name}");
+            }
+            // --- 调试代码结束 ---
 
             // 1. 获取 Name (或 OriginalTitle)
             var nameToProcess = info.Name; // 或 info.OriginalTitle，根据需求
@@ -66,6 +89,9 @@ namespace EmbyPinyinPlugin.Providers
             var item = (T)Activator.CreateInstance(typeof(T)); // 创建实例 (可能有更好的方式，取决于具体类型)
             // item.Name = info.Name; // 通常框架会处理基础属性
             item.SetSortNameDirect(pinyinInitials.ToUpper()); // 关键：设置拼音首字母
+
+            // 尝试锁定 SortName 字段，防止被后续提供者覆盖 (需要 using MediaBrowser.Model.Entities;)
+            item.LockedFields = new [] { MetadataFields.SortName };
 
             // 4. 创建 MetadataResult 并返回
             var result = new MetadataResult<T>
