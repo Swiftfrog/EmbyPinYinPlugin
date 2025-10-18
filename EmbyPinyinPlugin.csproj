@@ -4,7 +4,7 @@
     <TargetFramework>net8.0</TargetFramework>
     <AssemblyVersion>1.0.0.0</AssemblyVersion>
     <FileVersion>1.0.0.0</FileVersion>
-    <CopyLocalLockFileAssemblies>True</CopyLocalLockFileAssemblies> <!-- 确保依赖项被复制到输出目录 -->
+    <CopyLocalLockFileAssemblies>True</CopyLocalLockFileAssemblies> <!-- 确保依赖项被复制到输出目录，供 ILRepack 或 Fody 使用 -->
     <IncludeSourceRevisionInInformationalVersion>true</IncludeSourceRevisionInInformationalVersion>
     <AssemblyName>EmbyPinyinPlugin</AssemblyName>
     <RootNamespace>EmbyPinyinPlugin</RootNamespace>
@@ -17,7 +17,8 @@
     <PackageReference Include="TinyPinyin" Version="1.1.0" />
     <!-- 添加对 Microsoft.Extensions.Logging.Abstractions 的引用 -->
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.0" />
-    <!-- 移除 ILRepack 或 Costura.Fody 相关引用 -->
+    <!-- 添加 Costura.Fody 用于合并依赖 -->
+    <PackageReference Include="Costura.Fody" Version="5.7.0" PrivateAssets="All" />
   </ItemGroup>
 
 </Project>
