@@ -10,7 +10,7 @@ using System.Threading.Tasks; // Task
 using System.Collections.Generic; // IEnumerable, List
 using System; // Exception, ArgumentException
 using EmbyPinyinPlugin.Utils; // PinyinHelper
-//using Microsoft.Extensions.Logging; // ILogger<T> (如果插件主类使用了这个)
+using Microsoft.Extensions.Logging; // ILogger<T> (如果插件主类使用了这个)
 using System.Linq; // 用于 ToList() 和 Contains() 扩展方法
 
 namespace EmbyPinyinPlugin.Tasks
