@@ -12,7 +12,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest # 仍然使用 Linux，因为 .NET 8 项目本身是跨平台的
+    runs-on: ubuntu-latest
 
     steps:
     - name: Checkout code
@@ -30,20 +30,17 @@ jobs:
       run: dotnet build --no-restore --configuration Release
 
     # 添加一个步骤来检查编译输出目录，方便调试
-    - name: List build output (after Fody)
-      run: find . -name "EmbyPinyinPlugin.dll" -type f -path "./**/bin/Release/net8.0/*" -ls
+    - name: List build output (after build)
+      run: find . -name "*.dll" -type f -path "./**/bin/Release/net8.0/*" -ls
 
-    - name: Create ZIP without directory structure
+    # --- 关键步骤：创建包含所有 DLL 的 ZIP ---
+    - name: Create ZIP with all DLLs
       run: |
-        # 确保目标文件存在
-        if [ ! -f "./bin/Release/net8.0/EmbyPinyinPlugin.dll" ]; then
-          echo "Error: ./bin/Release/net8.0/EmbyPinyinPlugin.dll not found!"
-          exit 1
-        fi
         # 切换到输出目录
         cd ./bin/Release/net8.0/
-        # 创建一个不包含目录结构的 ZIP 文件
-        zip -j ../EmbyPinyinPlugin-${{ github.sha }}.zip EmbyPinyinPlugin.dll
+        # 创建一个包含所有 DLL 文件的 ZIP，并且 ZIP 根目录就是 DLL 文件
+        # zip -j 将所有文件直接放入 ZIP 根目录，不保留路径
+        zip -j ../EmbyPinyinPlugin-${{ github.sha }}.zip *.dll
         # 验证 ZIP 内容
         echo "Contents of the created ZIP:"
         unzip -l ../EmbyPinyinPlugin-${{ github.sha }}.zip
@@ -54,7 +51,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: EmbyPinyinPlugin-${{ github.sha }} # 生成的文件名包含提交 SHA
-        # 上传我们刚刚创建的自定义 ZIP 文件
+        # 上传我们刚刚创建的包含所有 DLL 的 ZIP 文件
         path: ./bin/Release/net8.0/EmbyPinyinPlugin-${{ github.sha }}.zip
         if-no-files-found: error # 如果没找到文件，工作流失败
         retention-days: 30 # 保留 30 天
