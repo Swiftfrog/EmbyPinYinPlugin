@@ -145,6 +145,7 @@ namespace EmbyPinyinPlugin.Tasks
         /// </summary>
         /// <param name="item">要处理的媒体项。</param>
         /// <returns>如果项目被更新，则返回 true；否则返回 false。</returns>
+
         private bool ProcessItem(BaseItem item)
         {
             // 1. 获取 Name 用于判断和计算拼音
@@ -186,26 +187,21 @@ namespace EmbyPinyinPlugin.Tasks
                 _logger.LogDebug($"已设置 SortName 为 {pinyinInitialsUpper}: {item.Name} (ID: {item.Id})");
             }
 
-            // 6. 设置 LockedFields (修正 3)
-            // 注意：直接修改 LockedFields 集合可能不是线程安全的，或者不是 Emby 推荐的方式。
-            // 更推荐的方式是操作 LockedFields 属性。
-            // 假设 LockedFields 是一个 string[] 或 IEnumerable<string>
-            // 根据你提供的代码片段进行修正：
+            // 6. 设置 LockedFields (修正错误 CS0019)
+            // LockedFields 是 MetadataFields 枚举的集合，不是字符串集合。
             try
             {
-                // 1. 获取当前已锁定的字段列表。
-                //    使用 ?.ToList() ?? new List<string>() 来安全地处理 null 的情况。
-                //    注意：LockedFields 可能是 string[]，所以先转换为 List<string>
-                var lockedFieldsList = item.LockedFields?.ToList() ?? new List<string>();
+                // 1. 获取当前已锁定的字段列表 (MetadataFields[])。
+                //    使用 ?.ToArray() ?? Array.Empty<MetadataFields>() 来安全地处理 null 的情况。
+                var currentLockedFields = item.LockedFields?.ToArray() ?? Array.Empty<MetadataFields>();
 
-                // 2. 检查 "SortName" 是否已经存在于列表中（忽略大小写以增加稳健性）。
-                if (!lockedFieldsList.Contains("SortName", StringComparer.OrdinalIgnoreCase))
+                // 2. 检查 MetadataFields.SortName 是否已经存在于列表中。
+                if (!currentLockedFields.Contains(MetadataFields.SortName))
                 {
-                    // 3. 如果不存在，则添加它。
-                    lockedFieldsList.Add("SortName");
-
-                    // 4. 将更新后的列表转换回数组并重新赋值给 item。
-                    item.LockedFields = lockedFieldsList.ToArray(); // 注意：这里假设 LockedFields 是可写的 string[] 属性
+                    // 3. 如果不存在，则创建一个新的列表，添加 MetadataFields.SortName，并重新赋值给 item。
+                    var newLockedFieldsList = currentLockedFields.ToList(); // 转换为 List 以便添加
+                    newLockedFieldsList.Add(MetadataFields.SortName);
+                    item.LockedFields = newLockedFieldsList.ToArray(); // 转换回数组并赋值
                     _logger.LogDebug($"已锁定 SortName 字段: {item.Name} (ID: {item.Id})");
                 }
                 else
@@ -218,7 +214,6 @@ namespace EmbyPinyinPlugin.Tasks
                 _logger.LogError(ex, $"尝试锁定 SortName 字段时出错: {item.Name} (ID: {item.Id})");
                 // 即使锁定失败，也继续处理 OriginalTitle
             }
-
 
             // 7. 更新 OriginalTitle
             var currentOriginalTitle = item.OriginalTitle ?? string.Empty;
@@ -237,10 +232,105 @@ namespace EmbyPinyinPlugin.Tasks
             }
 
             // 如果 SortName 或 OriginalTitle 有任何更改，则认为项目被更新
-            // 这里我们简化处理，只要进入了这个方法并且包含中文，就认为进行了处理。
-            // 更精确的判断是：如果 currentSortName != pinyinInitialsUpper || !currentOriginalTitle.Contains(expectedPinyinTag)
-            // 但 item.UpdateToRepository 会智能处理，只有真正改变的字段才会触发更新。
             return true; 
         }
+        
+        // private bool ProcessItem(BaseItem item)
+        // {
+        //     // 1. 获取 Name 用于判断和计算拼音
+        //     var nameToProcess = item.Name; // 或 item.OriginalTitle，根据需求
+        //     if (string.IsNullOrEmpty(nameToProcess))
+        //     {
+        //         _logger.LogDebug($"项目名称为空，跳过: {item.Id}");
+        //         return false;
+        //     }
+
+        //     // 2. 判断是否包含中文字符
+        //     if (!PinyinHelper.ContainsChinese(nameToProcess))
+        //     {
+        //         // 如果不包含中文字符，则不进行拼音处理
+        //         _logger.LogDebug($"项目名称不包含中文，跳过: {item.Name} (ID: {item.Id})");
+        //         return false;
+        //     }
+
+        //     // 3. 计算拼音简写
+        //     string pinyinInitials = PinyinHelper.GetPinyinInitials(nameToProcess);
+        //     if (string.IsNullOrEmpty(pinyinInitials))
+        //     {
+        //         _logger.LogDebug($"计算拼音失败，跳过: {item.Name} (ID: {item.Id})");
+        //         return false;
+        //     }
+
+        //     var pinyinInitialsUpper = pinyinInitials.ToUpper();
+
+        //     // 4. 检查 SortName 是否已经是我们期望的值，避免不必要的更新
+        //     var currentSortName = item.SortName ?? string.Empty;
+        //     if (currentSortName.Equals(pinyinInitialsUpper, StringComparison.Ordinal))
+        //     {
+        //         _logger.LogDebug($"SortName 已经是 {pinyinInitialsUpper}，无需更新: {item.Name} (ID: {item.Id})");
+        //     }
+        //     else
+        //     {
+        //         // 5. 设置 SortName
+        //         item.SetSortNameDirect(pinyinInitialsUpper);
+        //         _logger.LogDebug($"已设置 SortName 为 {pinyinInitialsUpper}: {item.Name} (ID: {item.Id})");
+        //     }
+
+        //     // 6. 设置 LockedFields (修正 3)
+        //     // 注意：直接修改 LockedFields 集合可能不是线程安全的，或者不是 Emby 推荐的方式。
+        //     // 更推荐的方式是操作 LockedFields 属性。
+        //     // 假设 LockedFields 是一个 string[] 或 IEnumerable<string>
+        //     // 根据你提供的代码片段进行修正：
+        //     try
+        //     {
+        //         // 1. 获取当前已锁定的字段列表。
+        //         //    使用 ?.ToList() ?? new List<string>() 来安全地处理 null 的情况。
+        //         //    注意：LockedFields 可能是 string[]，所以先转换为 List<string>
+        //         var lockedFieldsList = item.LockedFields?.ToList() ?? new List<string>();
+
+        //         // 2. 检查 "SortName" 是否已经存在于列表中（忽略大小写以增加稳健性）。
+        //         if (!lockedFieldsList.Contains("SortName", StringComparer.OrdinalIgnoreCase))
+        //         {
+        //             // 3. 如果不存在，则添加它。
+        //             lockedFieldsList.Add("SortName");
+
+        //             // 4. 将更新后的列表转换回数组并重新赋值给 item。
+        //             item.LockedFields = lockedFieldsList.ToArray(); // 注意：这里假设 LockedFields 是可写的 string[] 属性
+        //             _logger.LogDebug($"已锁定 SortName 字段: {item.Name} (ID: {item.Id})");
+        //         }
+        //         else
+        //         {
+        //              _logger.LogDebug($"SortName 字段已被锁定，无需重复锁定: {item.Name} (ID: {item.Id})");
+        //         }
+        //     }
+        //     catch (Exception ex)
+        //     {
+        //         _logger.LogError(ex, $"尝试锁定 SortName 字段时出错: {item.Name} (ID: {item.Id})");
+        //         // 即使锁定失败，也继续处理 OriginalTitle
+        //     }
+
+
+        //     // 7. 更新 OriginalTitle
+        //     var currentOriginalTitle = item.OriginalTitle ?? string.Empty;
+        //     var expectedPinyinTag = $" #{pinyinInitialsUpper}";
+        //     if (currentOriginalTitle.Contains(expectedPinyinTag))
+        //     {
+        //          _logger.LogDebug($"OriginalTitle 已包含拼音标签 {expectedPinyinTag}，无需更新: {item.Name} (ID: {item.Id})");
+        //     }
+        //     else
+        //     {
+        //         var newOriginalTitle = string.IsNullOrEmpty(currentOriginalTitle) 
+        //             ? pinyinInitialsUpper 
+        //             : $"{currentOriginalTitle}{expectedPinyinTag}";
+        //         item.OriginalTitle = newOriginalTitle;
+        //         _logger.LogDebug($"已更新 OriginalTitle 为 {newOriginalTitle}: {item.Name} (ID: {item.Id})");
+        //     }
+
+        //     // 如果 SortName 或 OriginalTitle 有任何更改，则认为项目被更新
+        //     // 这里我们简化处理，只要进入了这个方法并且包含中文，就认为进行了处理。
+        //     // 更精确的判断是：如果 currentSortName != pinyinInitialsUpper || !currentOriginalTitle.Contains(expectedPinyinTag)
+        //     // 但 item.UpdateToRepository 会智能处理，只有真正改变的字段才会触发更新。
+        //     return true; 
+        // }
     }
 }
