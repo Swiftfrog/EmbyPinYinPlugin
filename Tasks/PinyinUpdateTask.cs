@@ -4,7 +4,7 @@ using MediaBrowser.Controller.Library; // ILibraryManager
 using MediaBrowser.Model.Entities; // BaseItem, ItemUpdateType, MetadataFields
 using MediaBrowser.Model.Querying; // InternalItemsQuery
 using MediaBrowser.Model.Logging; // ILogger (如果需要)
-using MediaBrowser.Controller.Entities
+using MediaBrowser.Controller.Entities;
 using System.Threading; // CancellationToken
 using System.Threading.Tasks; // Task
 using System.Collections.Generic; // IEnumerable, List
