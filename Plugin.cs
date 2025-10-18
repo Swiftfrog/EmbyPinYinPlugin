@@ -4,6 +4,8 @@ using MediaBrowser.Common.Plugins; // IPlugin, BasePlugin
 using MediaBrowser.Model.Plugins; // BasePluginConfiguration
 using MediaBrowser.Model.Serialization; // IJsonSerializer
 using System;
+// IApplicationHost 在 MediaBrowser.Common 命名空间下
+using MediaBrowser.Common; 
 
 namespace EmbyPinyinPlugin
 {
