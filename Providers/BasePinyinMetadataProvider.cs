@@ -1,6 +1,7 @@
 // Providers/BasePinyinMetadataProvider.cs
 using MediaBrowser.Controller.Entities;
-using MediaBrowser.Controller.Providers; // 包含 ILocalMetadataProvider, ItemInfo, LibraryOptions, IDirectoryService
+using MediaBrowser.Controller.Providers; // 包含 ILocalMetadataProvider, ItemInfo, IDirectoryService
+using MediaBrowser.Model.Configuration; // 包含 LibraryOptions
 using System.Threading; // 包含 CancellationToken
 using System.Threading.Tasks; // 包含 Task
 using Microsoft.Extensions.Logging; // 包含 ILogger<T>
