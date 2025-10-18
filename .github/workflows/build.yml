@@ -12,7 +12,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest # 仍然使用 Linux，因为 .NET 8 项目本身是跨平台的
 
     steps:
     - name: Checkout code
@@ -30,7 +30,7 @@ jobs:
       run: dotnet build --no-restore --configuration Release
 
     # 添加一个步骤来检查编译输出目录，方便调试
-    - name: List build output (after ILRepack)
+    - name: List build output (after Fody)
       run: find . -name "EmbyPinyinPlugin.dll" -type f -path "./**/bin/Release/net8.0/*" -ls
 
     - name: Create ZIP without directory structure
