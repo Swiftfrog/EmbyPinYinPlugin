@@ -10,6 +10,7 @@ using System.Collections.Generic; // IEnumerable
 using System; // Exception, ArgumentException
 using EmbyPinyinPlugin.Utils; // PinyinHelper
 using Microsoft.Extensions.Logging; // ILogger<T> (如果插件主类使用了这个)
+using MediaBrowser.Controller.Entities; // BaseItem (新增)
 
 namespace EmbyPinyinPlugin.Tasks
 {
