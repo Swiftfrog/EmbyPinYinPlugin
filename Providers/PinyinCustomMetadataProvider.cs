@@ -31,38 +31,79 @@ namespace EmbyPinyinPlugin.Providers
         // 实现 IHasOrder 接口，返回较低的数字以获得较高优先级
         public int Order => 0; // 在同类提供者中拥有最高优先级
 
+        // public async Task<ItemUpdateType> FetchAsync(
+        //     MetadataResult<Movie> itemResult,
+        //     MetadataRefreshOptions options,
+        //     LibraryOptions libraryOptions,
+        //     CancellationToken cancellationToken)
+        // {
+        //     // 1. 获取媒体项
+        //     var item = itemResult.Item;
+
+        //     // 2. 获取 Name (或 OriginalTitle)
+        //     var nameToProcess = item.Name; // 或 item.OriginalTitle，根据需求
+        //     if (string.IsNullOrEmpty(nameToProcess))
+        //     {
+        //         // 如果没有名称，则不进行处理
+        //         return ItemUpdateType.None;
+        //     }
+
+        //     // 3. 计算拼音简写 (同步操作)
+        //     string pinyinInitials = PinyinHelper.GetPinyinInitials(nameToProcess);
+
+        //     if (string.IsNullOrEmpty(pinyinInitials))
+        //     {
+        //          // 如果计算失败，则不进行处理
+        //          return ItemUpdateType.None;
+        //     }
+
+        //     // 4. 设置 SortName
+        //     item.SetSortNameDirect(pinyinInitials.ToUpper()); // 关键：设置拼音首字母
+
+        //     // 5. 返回更新类型，告知 Emby 我们更新了元数据
+        //     return ItemUpdateType.MetadataEdit;
+        // }
+
         public async Task<ItemUpdateType> FetchAsync(
             MetadataResult<Movie> itemResult,
             MetadataRefreshOptions options,
             LibraryOptions libraryOptions,
             CancellationToken cancellationToken)
         {
-            // 1. 获取媒体项
             var item = itemResult.Item;
 
-            // 2. 获取 Name (或 OriginalTitle)
+            // 1. 获取 Name (或 OriginalTitle) 用于计算拼音
             var nameToProcess = item.Name; // 或 item.OriginalTitle，根据需求
             if (string.IsNullOrEmpty(nameToProcess))
             {
-                // 如果没有名称，则不进行处理
                 return ItemUpdateType.None;
             }
 
-            // 3. 计算拼音简写 (同步操作)
+            // 2. 计算拼音简写
             string pinyinInitials = PinyinHelper.GetPinyinInitials(nameToProcess);
-
             if (string.IsNullOrEmpty(pinyinInitials))
             {
-                 // 如果计算失败，则不进行处理
                  return ItemUpdateType.None;
             }
 
-            // 4. 设置 SortName
-            item.SetSortNameDirect(pinyinInitials.ToUpper()); // 关键：设置拼音首字母
+            // 3. 设置 SortName (保持原有逻辑)
+            item.SetSortNameDirect(pinyinInitials.ToUpper());
 
-            // 5. 返回更新类型，告知 Emby 我们更新了元数据
-            return ItemUpdateType.MetadataEdit;
+            // 4. 更新 OriginalTitle (新增逻辑)
+            var currentOriginalTitle = item.OriginalTitle ?? string.Empty; // 处理 null 情况
+            // 只有当 OriginalTitle 不包含我们附加的拼音部分时，才进行更新
+            // 这可以避免重复附加
+            if (!currentOriginalTitle.Contains($" #{pinyinInitials.ToUpper()}"))
+            {
+                item.OriginalTitle = string.IsNullOrEmpty(currentOriginalTitle) 
+                    ? pinyinInitials.ToUpper() 
+                    : $"{currentOriginalTitle} #{pinyinInitials.ToUpper()}";
+            }
+
+            // 5. 返回更新类型
+            return ItemUpdateType.MetadataEdit; // 或者更具体的类型，如 MetadataEdit | ImageUpdate (如果也修改了图片相关)
         }
+        
     }
 
     /// <summary>
@@ -98,6 +139,18 @@ namespace EmbyPinyinPlugin.Providers
             }
 
             item.SetSortNameDirect(pinyinInitials.ToUpper());
+            
+            // 4. 更新 OriginalTitle (新增逻辑)
+            var currentOriginalTitle = item.OriginalTitle ?? string.Empty; // 处理 null 情况
+            // 只有当 OriginalTitle 不包含我们附加的拼音部分时，才进行更新
+            // 这可以避免重复附加
+            if (!currentOriginalTitle.Contains($" #{pinyinInitials.ToUpper()}"))
+            {
+                item.OriginalTitle = string.IsNullOrEmpty(currentOriginalTitle) 
+                    ? pinyinInitials.ToUpper() 
+                    : $"{currentOriginalTitle} #{pinyinInitials.ToUpper()}";
+            }
+            
             return ItemUpdateType.MetadataEdit;
         }
     }
