@@ -41,22 +41,35 @@ jobs:
     # --- 创建仅包含主 DLL 的 ZIP (现在这个 DLL 已经包含了 TinyPinyin) ---
     - name: Create ZIP with main DLL only
       run: |
-        # 切换到输出目录
-        Set-Location ./bin/Release/net8.0/
-        # 创建一个只包含 EmbyPinyinPlugin.dll 的 ZIP
-        Compress-Archive -Path "EmbyPinyinPlugin.dll" -DestinationPath "../EmbyPinyinPlugin-$($env:GITHUB_SHA).zip" -Force
+        $zipFileName = "EmbyPinyinPlugin-${{ github.sha }}.zip"
+        $outputDir = "./bin/Release/net8.0/"
+        $dllPath = "$outputDir/EmbyPinyinPlugin.dll"
+        $zipPath = "$outputDir/$zipFileName"
+        
+        # 确保 DLL 存在
+        if (-not (Test-Path $dllPath)) {
+            Write-Error "DLL file not found: $dllPath"
+            exit 1
+        }
+        
+        # 创建 ZIP
+        Compress-Archive -Path $dllPath -DestinationPath $zipPath -Force
+        Write-Output "Created ZIP: $zipPath"
+        
         # 验证 ZIP 内容
         Write-Output "Contents of the created ZIP:"
-        Expand-Archive -Path "../EmbyPinyinPlugin-$($env:GITHUB_SHA).zip" -DestinationPath "../temp_zip_contents/"
-        Get-ChildItem -Path "../temp_zip_contents/" -Recurse
-        # 切换回工作目录
-        Set-Location $env:GITHUB_WORKSPACE
+        $tempDir = "$outputDir/temp_zip_contents/"
+        New-Item -ItemType Directory -Path $tempDir -Force
+        Expand-Archive -Path $zipPath -DestinationPath $tempDir
+        Get-ChildItem -Path $tempDir -Recurse
+        Remove-Item -Path $tempDir -Recurse -Force # 清理临时目录
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
       with:
         name: EmbyPinyinPlugin-${{ github.sha }} # 生成的文件名包含提交 SHA
         # 上传我们刚刚创建的包含主 DLL 的 ZIP 文件 (该 DLL 已合并 TinyPinyin)
+        # 使用与 PowerShell 脚本中完全相同的路径构建方式
         path: ./bin/Release/net8.0/EmbyPinyinPlugin-${{ github.sha }}.zip
         if-no-files-found: error # 如果没找到文件，工作流失败
         retention-days: 30 # 保留 30 天
