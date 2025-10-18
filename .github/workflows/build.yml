@@ -32,7 +32,11 @@ jobs:
 
     # 添加一个步骤来检查编译输出目录，方便调试
     - name: List build output (after ILRepack)
-      run: Get-ChildItem -Path "./bin/Release/net8.0/" -Filter "EmbyPinyinPlugin.dll" -Recurse | ForEach-Object { Write-Output $_.FullName; Write-Output "Size: $($_.Length) bytes" }
+      run: |
+        Get-ChildItem -Path "./bin/Release/net8.0/" -Filter "EmbyPinyinPlugin.dll" -Recurse | ForEach-Object { 
+          Write-Output $_.FullName
+          Write-Output "Size: $($_.Length) bytes"
+        }
 
     # --- 创建仅包含主 DLL 的 ZIP (现在这个 DLL 已经包含了 TinyPinyin) ---
     - name: Create ZIP with main DLL only
