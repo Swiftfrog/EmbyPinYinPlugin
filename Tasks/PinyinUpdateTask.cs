@@ -6,11 +6,11 @@ using MediaBrowser.Model.Querying; // InternalItemsQuery
 using MediaBrowser.Model.Logging; // ILogger (如果需要)
 using System.Threading; // CancellationToken
 using System.Threading.Tasks; // Task
-using System.Collections.Generic; // IEnumerable
+using System.Collections.Generic; // IEnumerable, List
 using System; // Exception, ArgumentException
 using EmbyPinyinPlugin.Utils; // PinyinHelper
 using Microsoft.Extensions.Logging; // ILogger<T> (如果插件主类使用了这个)
-using MediaBrowser.Controller.Entities; // BaseItem (新增)
+using System.Linq; // 用于 ToList() 和 Contains() 扩展方法
 
 namespace EmbyPinyinPlugin.Tasks
 {
@@ -88,7 +88,8 @@ namespace EmbyPinyinPlugin.Tasks
             };
 
             var allItems = _libraryManager.GetItemList(query);
-            var totalItems = allItems.Count;
+            // 修正 1: 使用 Length 而不是 Count
+            var totalItems = allItems.Length; 
             _logger.LogInformation($"查询到 {totalItems} 个媒体项需要处理。");
 
             if (totalItems == 0)
@@ -98,7 +99,8 @@ namespace EmbyPinyinPlugin.Tasks
             }
 
             var processedCount = 0;
-            foreach (var item in allItems)
+            // 修正 1: 遍历数组
+            foreach (var item in allItems) 
             {
                 cancellationToken.ThrowIfCancellationRequested(); // 检查是否被取消
 
@@ -110,8 +112,8 @@ namespace EmbyPinyinPlugin.Tasks
                     if (updated)
                     {
                         // 3. 保存更改
-                        // ItemUpdateType.MetadataEdit 表示元数据被编辑
-                        item.UpdateToRepository(ItemUpdateType.MetadataEdit, _libraryManager);
+                        // 修正 2: 移除 _libraryManager 参数
+                        item.UpdateToRepository(ItemUpdateType.MetadataEdit);
                         _logger.LogDebug($"已更新项目: {item.Name} (ID: {item.Id})");
                     }
                     else
@@ -183,19 +185,39 @@ namespace EmbyPinyinPlugin.Tasks
                 _logger.LogDebug($"已设置 SortName 为 {pinyinInitialsUpper}: {item.Name} (ID: {item.Id})");
             }
 
-            // 6. 设置 LockedFields
+            // 6. 设置 LockedFields (修正 3)
             // 注意：直接修改 LockedFields 集合可能不是线程安全的，或者不是 Emby 推荐的方式。
-            // 更推荐的方式是调用 item.LockField(MetadataFields.SortName) 或类似方法（如果存在）。
-            // 如果没有专门的方法，可以尝试创建新的 HashSet 并赋值，但这取决于 BaseItem 的实现。
-            // 假设 BaseItem 有一个 LockField 方法或允许直接修改 LockedFields 属性：
-            item.LockField(MetadataFields.SortName); // Emby 可能提供了这个便捷方法
-            // 或者，如果需要直接操作 HashSet：
-            // var currentLockedFields = item.LockedFields ?? new HashSet<MetadataFields>();
-            // if (!currentLockedFields.Contains(MetadataFields.SortName))
-            // {
-            //     var newLockedFields = new HashSet<MetadataFields>(currentLockedFields) { MetadataFields.SortName };
-            //     item.LockedFields = newLockedFields; // 这行需要确认 BaseItem.LockedFields 是否可写
-            // }
+            // 更推荐的方式是操作 LockedFields 属性。
+            // 假设 LockedFields 是一个 string[] 或 IEnumerable<string>
+            // 根据你提供的代码片段进行修正：
+            try
+            {
+                // 1. 获取当前已锁定的字段列表。
+                //    使用 ?.ToList() ?? new List<string>() 来安全地处理 null 的情况。
+                //    注意：LockedFields 可能是 string[]，所以先转换为 List<string>
+                var lockedFieldsList = item.LockedFields?.ToList() ?? new List<string>();
+
+                // 2. 检查 "SortName" 是否已经存在于列表中（忽略大小写以增加稳健性）。
+                if (!lockedFieldsList.Contains("SortName", StringComparer.OrdinalIgnoreCase))
+                {
+                    // 3. 如果不存在，则添加它。
+                    lockedFieldsList.Add("SortName");
+
+                    // 4. 将更新后的列表转换回数组并重新赋值给 item。
+                    item.LockedFields = lockedFieldsList.ToArray(); // 注意：这里假设 LockedFields 是可写的 string[] 属性
+                    _logger.LogDebug($"已锁定 SortName 字段: {item.Name} (ID: {item.Id})");
+                }
+                else
+                {
+                     _logger.LogDebug($"SortName 字段已被锁定，无需重复锁定: {item.Name} (ID: {item.Id})");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"尝试锁定 SortName 字段时出错: {item.Name} (ID: {item.Id})");
+                // 即使锁定失败，也继续处理 OriginalTitle
+            }
+
 
             // 7. 更新 OriginalTitle
             var currentOriginalTitle = item.OriginalTitle ?? string.Empty;
@@ -214,13 +236,10 @@ namespace EmbyPinyinPlugin.Tasks
             }
 
             // 如果 SortName 或 OriginalTitle 有任何更改，则认为项目被更新
-            // 由于我们总是尝试设置 LockedFields 和 OriginalTitle (如果需要)，只要进入了这个方法，就可以认为是 "updated"
-            // 但更精确的做法是只在实际值发生改变时才返回 true。
-            // 这里我们假设只要项目名包含中文且拼音计算成功，就认为它被处理了。
-            // 如果 SortName 或 OriginalTitle 发生了实际变化，返回 true。
-            return true; // 根据上面的逻辑，如果进入此方法，通常意味着至少尝试了更新。
-                         // 更严格的判断是：如果 currentSortName != pinyinInitialsUpper || !currentOriginalTitle.Contains(expectedPinyinTag)
-                         // 但 item.UpdateToRepository 会智能处理，只有真正改变的字段才会触发更新。
+            // 这里我们简化处理，只要进入了这个方法并且包含中文，就认为进行了处理。
+            // 更精确的判断是：如果 currentSortName != pinyinInitialsUpper || !currentOriginalTitle.Contains(expectedPinyinTag)
+            // 但 item.UpdateToRepository 会智能处理，只有真正改变的字段才会触发更新。
+            return true; 
         }
     }
 }
