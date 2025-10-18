@@ -62,7 +62,7 @@ namespace EmbyPinyinPlugin.Providers
                 }
 
                 // 3. 如果你想确认代码执行到了设置 SortName 的地方，可以取消下面的注释
-                // throw new Exception($"DEBUG GetMetadata: About to create item and set SortName to '{pinyinInitials.ToUpper()}' for item Id: {info.Id}, Name: {info.Name}");
+                throw new Exception($"DEBUG GetMetadata: About to create item and set SortName to '{pinyinInitials.ToUpper()}' for item Id: {info.Id}, Name: {info.Name}");
             }
             // --- 调试代码结束 ---
 
