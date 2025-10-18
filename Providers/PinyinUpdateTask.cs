@@ -39,7 +39,8 @@ namespace EmbyPinyinPlugin.Providers
             return Array.Empty<TaskTriggerInfo>();
         }
 
-        public async Task<TaskResult> ExecuteAsync(IProgress<double> progress, CancellationToken cancellationToken)
+        // 修正：方法名改为 Execute，参数顺序调整，返回类型为 Task
+        public async Task Execute(CancellationToken cancellationToken, IProgress<double> progress)
         {
             _logger?.LogInformation("PinyinUpdateTask 开始执行。");
 
@@ -87,7 +88,7 @@ namespace EmbyPinyinPlugin.Providers
             if (totalItems == 0)
             {
                 progress?.Report(100); // 报告完成度
-                return new TaskResult(); // 空任务结果
+                return; // 空任务结果
             }
 
             // 3. 遍历并更新项目
@@ -148,7 +149,6 @@ namespace EmbyPinyinPlugin.Providers
 
             _logger?.LogInformation($"PinyinUpdateTask 执行完成。更新了 {processedCount} 个项目。");
             progress?.Report(100); // 报告完成度
-            return new TaskResult();
         }
     }
 }
