@@ -3,14 +3,13 @@ using MediaBrowser.Model.Tasks; // IScheduledTask, TaskTriggerInfo
 using MediaBrowser.Controller.Library; // ILibraryManager
 using MediaBrowser.Model.Entities; // BaseItem, ItemUpdateType, MetadataFields
 using MediaBrowser.Model.Querying; // InternalItemsQuery
-using MediaBrowser.Model.Logging; // ILogger (如果需要)
-using MediaBrowser.Controller.Entities;
+using MediaBrowser.Model.Logging; // ILogger (注意：这里是 Emby 的 ILogger)
+using MediaBrowser.Controller.Entities; // BaseItem
 using System.Threading; // CancellationToken
 using System.Threading.Tasks; // Task
 using System.Collections.Generic; // IEnumerable, List
 using System; // Exception, ArgumentException
 using EmbyPinyinPlugin.Utils; // PinyinHelper
-using Microsoft.Extensions.Logging; // ILogger<T> (如果插件主类使用了这个)
 using System.Linq; // 用于 ToList() 和 Contains() 扩展方法
 
 namespace EmbyPinyinPlugin.Tasks
@@ -21,14 +20,14 @@ namespace EmbyPinyinPlugin.Tasks
     public class PinyinUpdateTask : IScheduledTask
     {
         private readonly ILibraryManager _libraryManager;
-        private readonly ILogger _logger; // 修改为非泛型 ILogger
+        private readonly ILogger _logger; // 使用 Emby 的 ILogger
 
         /// <summary>
         /// 构造函数，通过依赖注入获取所需服务。
         /// </summary>
         /// <param name="libraryManager">Emby 的库管理器。</param>
-        /// <param name="logger">日志记录器。</param>
-        public PinyinUpdateTask(ILibraryManager libraryManager, ILogger logger) // 修改为非泛型 ILogger
+        /// <param name="logger">日志记录器 (Emby 的 ILogger)。</param>
+        public PinyinUpdateTask(ILibraryManager libraryManager, ILogger logger) // 使用 Emby 的 ILogger
         {
             _libraryManager = libraryManager;
             _logger = logger;
@@ -76,7 +75,8 @@ namespace EmbyPinyinPlugin.Tasks
         /// <returns>一个表示异步操作的任务。</returns>
         public async Task Execute(CancellationToken cancellationToken, IProgress<double> progress)
         {
-            _logger.LogInformation("开始执行拼音处理计划任务...");
+            // 修正：使用 Emby 的 ILogger.Info 方法
+            _logger.Info("开始执行拼音处理计划任务...");
 
             // 1. 查询所有需要处理的媒体项
             // 包括 Movie, Series, Episode, MusicAlbum, MusicArtist, Video, Photo, BoxSet
@@ -91,11 +91,13 @@ namespace EmbyPinyinPlugin.Tasks
             var allItems = _libraryManager.GetItemList(query);
             // 修正 1: 使用 Length 而不是 Count
             var totalItems = allItems.Length; 
-            _logger.LogInformation($"查询到 {totalItems} 个媒体项需要处理。");
+            // 修正：使用 Emby 的 ILogger.Info 方法
+            _logger.Info($"查询到 {totalItems} 个媒体项需要处理。");
 
             if (totalItems == 0)
             {
-                _logger.LogInformation("没有找到需要处理的媒体项。任务结束。");
+                // 修正：使用 Emby 的 ILogger.Info 方法
+                _logger.Info("没有找到需要处理的媒体项。任务结束。");
                 return;
             }
 
@@ -115,17 +117,20 @@ namespace EmbyPinyinPlugin.Tasks
                         // 3. 保存更改
                         // 修正 2: 移除 _libraryManager 参数
                         item.UpdateToRepository(ItemUpdateType.MetadataEdit);
-                        _logger.LogDebug($"已更新项目: {item.Name} (ID: {item.Id})");
+                        // 修正：使用 Emby 的 ILogger.Debug 方法
+                        _logger.Debug($"已更新项目: {item.Name} (ID: {item.Id})");
                     }
                     else
                     {
-                        _logger.LogDebug($"项目无需更新: {item.Name} (ID: {item.Id})");
+                        // 修正：使用 Emby 的 ILogger.Debug 方法
+                        _logger.Debug($"项目无需更新: {item.Name} (ID: {item.Id})");
                     }
                 }
                 catch (Exception ex)
                 {
                     // 记录处理单个项目时发生的错误，但不中断整个任务
-                    _logger.LogError(ex, $"处理项目时出错: {item.Name} (ID: {item.Id})");
+                    // 修正：使用 Emby 的 ILogger.Error 方法
+                    _logger.Error($"处理项目时出错: {item.Name} (ID: {item.Id})", ex);
                 }
 
                 processedCount++;
@@ -137,7 +142,8 @@ namespace EmbyPinyinPlugin.Tasks
                 // await Task.Delay(10, cancellationToken); // 10ms
             }
 
-            _logger.LogInformation($"拼音处理计划任务执行完毕。共处理 {processedCount} 个项目。");
+            // 修正：使用 Emby 的 ILogger.Info 方法
+            _logger.Info($"拼音处理计划任务执行完毕。共处理 {processedCount} 个项目。");
         }
 
         /// <summary>
@@ -145,14 +151,14 @@ namespace EmbyPinyinPlugin.Tasks
         /// </summary>
         /// <param name="item">要处理的媒体项。</param>
         /// <returns>如果项目被更新，则返回 true；否则返回 false。</returns>
-
         private bool ProcessItem(BaseItem item)
         {
             // 1. 获取 Name 用于判断和计算拼音
             var nameToProcess = item.Name; // 或 item.OriginalTitle，根据需求
             if (string.IsNullOrEmpty(nameToProcess))
             {
-                _logger.LogDebug($"项目名称为空，跳过: {item.Id}");
+                // 修正：使用 Emby 的 ILogger.Debug 方法
+                _logger.Debug($"项目名称为空，跳过: {item.Id}");
                 return false;
             }
 
@@ -160,7 +166,8 @@ namespace EmbyPinyinPlugin.Tasks
             if (!PinyinHelper.ContainsChinese(nameToProcess))
             {
                 // 如果不包含中文字符，则不进行拼音处理
-                _logger.LogDebug($"项目名称不包含中文，跳过: {item.Name} (ID: {item.Id})");
+                // 修正：使用 Emby 的 ILogger.Debug 方法
+                _logger.Debug($"项目名称不包含中文，跳过: {item.Name} (ID: {item.Id})");
                 return false;
             }
 
@@ -168,7 +175,8 @@ namespace EmbyPinyinPlugin.Tasks
             string pinyinInitials = PinyinHelper.GetPinyinInitials(nameToProcess);
             if (string.IsNullOrEmpty(pinyinInitials))
             {
-                _logger.LogDebug($"计算拼音失败，跳过: {item.Name} (ID: {item.Id})");
+                // 修正：使用 Emby 的 ILogger.Debug 方法
+                _logger.Debug($"计算拼音失败，跳过: {item.Name} (ID: {item.Id})");
                 return false;
             }
 
@@ -178,13 +186,15 @@ namespace EmbyPinyinPlugin.Tasks
             var currentSortName = item.SortName ?? string.Empty;
             if (currentSortName.Equals(pinyinInitialsUpper, StringComparison.Ordinal))
             {
-                _logger.LogDebug($"SortName 已经是 {pinyinInitialsUpper}，无需更新: {item.Name} (ID: {item.Id})");
+                // 修正：使用 Emby 的 ILogger.Debug 方法
+                _logger.Debug($"SortName 已经是 {pinyinInitialsUpper}，无需更新: {item.Name} (ID: {item.Id})");
             }
             else
             {
                 // 5. 设置 SortName
                 item.SetSortNameDirect(pinyinInitialsUpper);
-                _logger.LogDebug($"已设置 SortName 为 {pinyinInitialsUpper}: {item.Name} (ID: {item.Id})");
+                // 修正：使用 Emby 的 ILogger.Debug 方法
+                _logger.Debug($"已设置 SortName 为 {pinyinInitialsUpper}: {item.Name} (ID: {item.Id})");
             }
 
             // 6. 设置 LockedFields (修正错误 CS0019)
@@ -202,16 +212,19 @@ namespace EmbyPinyinPlugin.Tasks
                     var newLockedFieldsList = currentLockedFields.ToList(); // 转换为 List 以便添加
                     newLockedFieldsList.Add(MetadataFields.SortName);
                     item.LockedFields = newLockedFieldsList.ToArray(); // 转换回数组并赋值
-                    _logger.LogDebug($"已锁定 SortName 字段: {item.Name} (ID: {item.Id})");
+                    // 修正：使用 Emby 的 ILogger.Debug 方法
+                    _logger.Debug($"已锁定 SortName 字段: {item.Name} (ID: {item.Id})");
                 }
                 else
                 {
-                     _logger.LogDebug($"SortName 字段已被锁定，无需重复锁定: {item.Name} (ID: {item.Id})");
+                    // 修正：使用 Emby 的 ILogger.Debug 方法
+                     _logger.Debug($"SortName 字段已被锁定，无需重复锁定: {item.Name} (ID: {item.Id})");
                 }
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"尝试锁定 SortName 字段时出错: {item.Name} (ID: {item.Id})");
+                // 修正：使用 Emby 的 ILogger.Error 方法
+                _logger.Error($"尝试锁定 SortName 字段时出错: {item.Name} (ID: {item.Id})", ex);
                 // 即使锁定失败，也继续处理 OriginalTitle
             }
 
@@ -220,7 +233,8 @@ namespace EmbyPinyinPlugin.Tasks
             var expectedPinyinTag = $" #{pinyinInitialsUpper}";
             if (currentOriginalTitle.Contains(expectedPinyinTag))
             {
-                 _logger.LogDebug($"OriginalTitle 已包含拼音标签 {expectedPinyinTag}，无需更新: {item.Name} (ID: {item.Id})");
+                // 修正：使用 Emby 的 ILogger.Debug 方法
+                 _logger.Debug($"OriginalTitle 已包含拼音标签 {expectedPinyinTag}，无需更新: {item.Name} (ID: {item.Id})");
             }
             else
             {
@@ -228,109 +242,12 @@ namespace EmbyPinyinPlugin.Tasks
                     ? pinyinInitialsUpper 
                     : $"{currentOriginalTitle}{expectedPinyinTag}";
                 item.OriginalTitle = newOriginalTitle;
-                _logger.LogDebug($"已更新 OriginalTitle 为 {newOriginalTitle}: {item.Name} (ID: {item.Id})");
+                // 修正：使用 Emby 的 ILogger.Debug 方法
+                _logger.Debug($"已更新 OriginalTitle 为 {newOriginalTitle}: {item.Name} (ID: {item.Id})");
             }
 
             // 如果 SortName 或 OriginalTitle 有任何更改，则认为项目被更新
             return true; 
         }
-        
-        // private bool ProcessItem(BaseItem item)
-        // {
-        //     // 1. 获取 Name 用于判断和计算拼音
-        //     var nameToProcess = item.Name; // 或 item.OriginalTitle，根据需求
-        //     if (string.IsNullOrEmpty(nameToProcess))
-        //     {
-        //         _logger.LogDebug($"项目名称为空，跳过: {item.Id}");
-        //         return false;
-        //     }
-
-        //     // 2. 判断是否包含中文字符
-        //     if (!PinyinHelper.ContainsChinese(nameToProcess))
-        //     {
-        //         // 如果不包含中文字符，则不进行拼音处理
-        //         _logger.LogDebug($"项目名称不包含中文，跳过: {item.Name} (ID: {item.Id})");
-        //         return false;
-        //     }
-
-        //     // 3. 计算拼音简写
-        //     string pinyinInitials = PinyinHelper.GetPinyinInitials(nameToProcess);
-        //     if (string.IsNullOrEmpty(pinyinInitials))
-        //     {
-        //         _logger.LogDebug($"计算拼音失败，跳过: {item.Name} (ID: {item.Id})");
-        //         return false;
-        //     }
-
-        //     var pinyinInitialsUpper = pinyinInitials.ToUpper();
-
-        //     // 4. 检查 SortName 是否已经是我们期望的值，避免不必要的更新
-        //     var currentSortName = item.SortName ?? string.Empty;
-        //     if (currentSortName.Equals(pinyinInitialsUpper, StringComparison.Ordinal))
-        //     {
-        //         _logger.LogDebug($"SortName 已经是 {pinyinInitialsUpper}，无需更新: {item.Name} (ID: {item.Id})");
-        //     }
-        //     else
-        //     {
-        //         // 5. 设置 SortName
-        //         item.SetSortNameDirect(pinyinInitialsUpper);
-        //         _logger.LogDebug($"已设置 SortName 为 {pinyinInitialsUpper}: {item.Name} (ID: {item.Id})");
-        //     }
-
-        //     // 6. 设置 LockedFields (修正 3)
-        //     // 注意：直接修改 LockedFields 集合可能不是线程安全的，或者不是 Emby 推荐的方式。
-        //     // 更推荐的方式是操作 LockedFields 属性。
-        //     // 假设 LockedFields 是一个 string[] 或 IEnumerable<string>
-        //     // 根据你提供的代码片段进行修正：
-        //     try
-        //     {
-        //         // 1. 获取当前已锁定的字段列表。
-        //         //    使用 ?.ToList() ?? new List<string>() 来安全地处理 null 的情况。
-        //         //    注意：LockedFields 可能是 string[]，所以先转换为 List<string>
-        //         var lockedFieldsList = item.LockedFields?.ToList() ?? new List<string>();
-
-        //         // 2. 检查 "SortName" 是否已经存在于列表中（忽略大小写以增加稳健性）。
-        //         if (!lockedFieldsList.Contains("SortName", StringComparer.OrdinalIgnoreCase))
-        //         {
-        //             // 3. 如果不存在，则添加它。
-        //             lockedFieldsList.Add("SortName");
-
-        //             // 4. 将更新后的列表转换回数组并重新赋值给 item。
-        //             item.LockedFields = lockedFieldsList.ToArray(); // 注意：这里假设 LockedFields 是可写的 string[] 属性
-        //             _logger.LogDebug($"已锁定 SortName 字段: {item.Name} (ID: {item.Id})");
-        //         }
-        //         else
-        //         {
-        //              _logger.LogDebug($"SortName 字段已被锁定，无需重复锁定: {item.Name} (ID: {item.Id})");
-        //         }
-        //     }
-        //     catch (Exception ex)
-        //     {
-        //         _logger.LogError(ex, $"尝试锁定 SortName 字段时出错: {item.Name} (ID: {item.Id})");
-        //         // 即使锁定失败，也继续处理 OriginalTitle
-        //     }
-
-
-        //     // 7. 更新 OriginalTitle
-        //     var currentOriginalTitle = item.OriginalTitle ?? string.Empty;
-        //     var expectedPinyinTag = $" #{pinyinInitialsUpper}";
-        //     if (currentOriginalTitle.Contains(expectedPinyinTag))
-        //     {
-        //          _logger.LogDebug($"OriginalTitle 已包含拼音标签 {expectedPinyinTag}，无需更新: {item.Name} (ID: {item.Id})");
-        //     }
-        //     else
-        //     {
-        //         var newOriginalTitle = string.IsNullOrEmpty(currentOriginalTitle) 
-        //             ? pinyinInitialsUpper 
-        //             : $"{currentOriginalTitle}{expectedPinyinTag}";
-        //         item.OriginalTitle = newOriginalTitle;
-        //         _logger.LogDebug($"已更新 OriginalTitle 为 {newOriginalTitle}: {item.Name} (ID: {item.Id})");
-        //     }
-
-        //     // 如果 SortName 或 OriginalTitle 有任何更改，则认为项目被更新
-        //     // 这里我们简化处理，只要进入了这个方法并且包含中文，就认为进行了处理。
-        //     // 更精确的判断是：如果 currentSortName != pinyinInitialsUpper || !currentOriginalTitle.Contains(expectedPinyinTag)
-        //     // 但 item.UpdateToRepository 会智能处理，只有真正改变的字段才会触发更新。
-        //     return true; 
-        // }
     }
 }
