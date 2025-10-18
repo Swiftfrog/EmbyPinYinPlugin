@@ -3,8 +3,8 @@ using MediaBrowser.Controller.Entities;
 using MediaBrowser.Controller.Entities.Movies; // Movie
 using MediaBrowser.Controller.Entities.TV; // Series, Episode
 using MediaBrowser.Controller.Providers; // ICustomMetadataProvider, ItemInfo, IDirectoryService
+using MediaBrowser.Controller.Library; // 包含 ItemUpdateType
 using MediaBrowser.Model.Configuration; // 包含 LibraryOptions
-using MediaBrowser.Model.Entities; // 包含 ItemUpdateType
 using System.Threading; // 包含 CancellationToken
 using System.Threading.Tasks; // 包含 Task
 // 移除 Microsoft.Extensions.Logging 的 using
@@ -60,7 +60,7 @@ namespace EmbyPinyinPlugin.Providers
             item.SetSortNameDirect(pinyinInitials.ToUpper()); // 关键：设置拼音首字母
 
             // 5. 返回更新类型，告知 Emby 我们更新了元数据
-            return ItemUpdateType.Metadata;
+            return ItemUpdateType.MetadataEdit; // 或者 ItemUpdateType.MetadataImport, 根据具体意图
         }
     }
 
@@ -95,7 +95,7 @@ namespace EmbyPinyinPlugin.Providers
             }
 
             item.SetSortNameDirect(pinyinInitials.ToUpper());
-            return ItemUpdateType.Metadata;
+            return ItemUpdateType.MetadataEdit;
         }
     }
 
