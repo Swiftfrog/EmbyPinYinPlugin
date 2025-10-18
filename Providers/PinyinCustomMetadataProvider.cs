@@ -2,6 +2,7 @@
 using MediaBrowser.Controller.Entities;
 using MediaBrowser.Controller.Entities.Movies; // Movie
 using MediaBrowser.Controller.Entities.TV; // Series, Episode
+using MediaBrowser.Controller.Entities.Audio; // MusicAlbum, MusicArtist
 using MediaBrowser.Controller.Providers; // ICustomMetadataProvider, ItemInfo, IDirectoryService
 using MediaBrowser.Controller.Library; // 包含 ItemUpdateType
 using MediaBrowser.Model.Configuration; // 包含 LibraryOptions
