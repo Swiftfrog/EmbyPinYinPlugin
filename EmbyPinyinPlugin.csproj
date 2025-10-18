@@ -20,4 +20,5 @@
     <!-- 添加 Costura.Fody 用于合并依赖 -->
     <PackageReference Include="Costura.Fody" Version="5.7.0" PrivateAssets="All" />
   </ItemGroup>
+
 </Project>
