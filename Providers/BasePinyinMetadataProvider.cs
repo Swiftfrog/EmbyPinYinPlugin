@@ -3,7 +3,7 @@ using MediaBrowser.Controller.Entities;
 using MediaBrowser.Controller.Providers; // 包含 ILocalMetadataProvider, ItemInfo, IDirectoryService
 using MediaBrowser.Model.Configuration; // 包含 LibraryOptions
 using System.Threading; // 包含 CancellationToken
-using System.Threading.Tasks; // 包含 Task
+// 注意：移除了 System.Threading.Tasks，因为方法改为同步
 using Microsoft.Extensions.Logging; // 包含 ILogger<T>
 using System; // 包含 Activator
 using EmbyPinyinPlugin.Utils; // 包含 PinyinHelper
@@ -26,7 +26,8 @@ namespace EmbyPinyinPlugin.Providers
 
         public abstract string Name { get; }
 
-        public async Task<MetadataResult<T>> GetMetadata(
+        // 修改：移除 async, Task<...>, await
+        public MetadataResult<T> GetMetadata(
             ItemInfo info,
             LibraryOptions libraryOptions,
             IDirectoryService directoryService,
@@ -42,7 +43,7 @@ namespace EmbyPinyinPlugin.Providers
                 return new MetadataResult<T>();
             }
 
-            // 2. 计算拼音简写
+            // 2. 计算拼音简写 (同步操作)
             string pinyinInitials = PinyinHelper.GetPinyinInitials(nameToProcess);
 
             if (string.IsNullOrEmpty(pinyinInitials))
@@ -63,7 +64,7 @@ namespace EmbyPinyinPlugin.Providers
             };
 
             _logger?.LogInformation($"Set SortName to '{pinyinInitials.ToUpper()}' for {typeof(T).Name}: {info.Name}");
-            return result;
+            return result; // 直接返回结果
         }
     }
 }
