@@ -1,10 +1,11 @@
 // Providers/BasePinyinMetadataProvider.cs
 using MediaBrowser.Controller.Entities;
-using MediaBrowser.Controller.Providers;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-using EmbyPinyinPlugin.Utils;
+using MediaBrowser.Controller.Providers; // 包含 ILocalMetadataProvider, ItemInfo, LibraryOptions, IDirectoryService
+using System.Threading; // 包含 CancellationToken
+using System.Threading.Tasks; // 包含 Task
+using Microsoft.Extensions.Logging; // 包含 ILogger<T>
+using System; // 包含 Activator
+using EmbyPinyinPlugin.Utils; // 包含 PinyinHelper
 
 namespace EmbyPinyinPlugin.Providers
 {
