@@ -4,7 +4,8 @@ using MediaBrowser.Controller.Providers; // 包含 ILocalMetadataProvider, ItemI
 using MediaBrowser.Model.Configuration; // 包含 LibraryOptions
 using System.Threading; // 包含 CancellationToken
 using System.Threading.Tasks; // 包含 Task
-using Microsoft.Extensions.Logging; // 包含 ILogger<T>
+// 移除 Microsoft.Extensions.Logging 的 using
+// using Microsoft.Extensions.Logging; // 包含 ILogger<T>
 using System; // 包含 Activator
 using EmbyPinyinPlugin.Utils; // 包含 PinyinHelper
 
@@ -17,29 +18,37 @@ namespace EmbyPinyinPlugin.Providers
     public abstract class BasePinyinMetadataProvider<T> : ILocalMetadataProvider<T>
         where T : BaseItem
     {
-        protected readonly ILogger<BasePinyinMetadataProvider<T>> _logger;
+        // 移除 ILogger 字段
+        // protected readonly ILogger<BasePinyinMetadataProvider<T>> _logger;
 
-        protected BasePinyinMetadataProvider(ILogger<BasePinyinMetadataProvider<T>> logger)
+        // 移除 ILogger 参数的构造函数
+        // protected BasePinyinMetadataProvider(ILogger<BasePinyinMetadataProvider<T>> logger)
+        // {
+        //     _logger = logger;
+        // }
+
+        // 无参数构造函数
+        protected BasePinyinMetadataProvider()
         {
-            _logger = logger;
         }
 
         public abstract string Name { get; }
 
-        // 修改：恢复 async 和 Task<...> 返回类型
         public async Task<MetadataResult<T>> GetMetadata(
             ItemInfo info,
             LibraryOptions libraryOptions,
             IDirectoryService directoryService,
             CancellationToken cancellationToken)
         {
-            _logger?.LogDebug($"Processing GetMetadata for {typeof(T).Name}: {info.Name}");
+            // 移除日志记录
+            // _logger?.LogDebug($"Processing GetMetadata for {typeof(T).Name}: {info.Name}");
 
             // 1. 获取 Name (或 OriginalTitle)
             var nameToProcess = info.Name; // 或 info.OriginalTitle，根据需求
             if (string.IsNullOrEmpty(nameToProcess))
             {
-                _logger?.LogWarning($"Name is null or empty for item: {info.Name}. Skipping pinyin processing.");
+                // 移除日志记录
+                // _logger?.LogWarning($"Name is null or empty for item: {info.Name}. Skipping pinyin processing.");
                 return new MetadataResult<T>();
             }
 
@@ -48,7 +57,8 @@ namespace EmbyPinyinPlugin.Providers
 
             if (string.IsNullOrEmpty(pinyinInitials))
             {
-                 _logger?.LogWarning($"Failed to calculate pinyin initials for: {nameToProcess}. Skipping pinyin processing.");
+                 // 移除日志记录
+                 // _logger?.LogWarning($"Failed to calculate pinyin initials for: {nameToProcess}. Skipping pinyin processing.");
                  return new MetadataResult<T>();
             }
 
@@ -63,8 +73,8 @@ namespace EmbyPinyinPlugin.Providers
                 Item = item,
             };
 
-            _logger?.LogInformation($"Set SortName to '{pinyinInitials.ToUpper()}' for {typeof(T).Name}: {info.Name}");
-            // 使用 Task.FromResult 包装同步结果
+            // 移除日志记录
+            // _logger?.LogInformation($"Set SortName to '{pinyinInitials.ToUpper()}' for {typeof(T).Name}: {info.Name}");
             return result;
         }
     }
