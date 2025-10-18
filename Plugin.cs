@@ -15,7 +15,7 @@ namespace EmbyPinyinPlugin
 
         public override string Name => "PinyinSorter";
 
-        public override Guid Id => Guid.Parse("B250C7F4-4E2B-4E7C-8B9A-123456789ABC"); // 请替换成你生成的全新 GUID
+        public override Guid Id => Guid.Parse("71C46E3B-3EB8-0D38-E047-19952D0508B2"); // 请替换成你生成的全新 GUID
 
         public override string Description => "Adds pinyin initials to media items for sorting and searching.";
     }
