@@ -85,7 +85,7 @@ namespace EmbyPinyinPlugin.Providers
             item.SetSortNameDirect(pinyinInitials.ToUpper()); // 关键：设置拼音首字母
 
             // 尝试锁定 SortName 字段，防止被后续提供者覆盖 (需要 using MediaBrowser.Model.Entities;)
-            item.LockedFields = new [] { MetadataFields.SortName };
+            // item.LockedFields = new [] { MetadataFields.SortName };
 
             // 4. 创建 MetadataResult 并返回
             var result = new MetadataResult<T>
