@@ -11,7 +11,7 @@ namespace EmbyPinyinPlugin
 {
     public class Plugin : BasePlugin<PluginConfiguration>, IPlugin
     {
-        public Plugin(IApplicationHost applicationHost, IXmlSerializer xmlSerializer, IConfigurationManager configurationManager) : base(applicationHost, xmlSerializer, configurationManager)
+        public Plugin(IApplicationHost applicationHost) : base(applicationHost) // 只接受 IApplicationHost
         {
         }
 
