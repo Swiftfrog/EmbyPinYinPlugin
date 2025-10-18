@@ -20,11 +20,4 @@
     <!-- 添加 Costura.Fody 用于合并依赖 -->
     <PackageReference Include="Costura.Fody" Version="5.7.0" PrivateAssets="All" />
   </ItemGroup>
-
-  <!-- Fody 通常会自动运行，无需手动配置 MSBuild Target -->
-  <!-- 但可以添加 FodyWeavers.xml 文件来配置它 -->
-  <ItemGroup>
-    <WeaverFiles Include="$(OutputPath)TinyPinyin.dll" />
-  </ItemGroup>
-
 </Project>
