@@ -4,7 +4,7 @@
     <TargetFramework>net8.0</TargetFramework>
     <AssemblyVersion>1.0.0.0</AssemblyVersion>
     <FileVersion>1.0.0.0</FileVersion>
-    <CopyLocalLockFileAssemblies>True</CopyLocalLockFileAssemblies> <!-- 确保依赖项被复制到输出目录 -->
+    <CopyLocalLockFileAssemblies>True</CopyLocalLockFileAssemblies>
     <IncludeSourceRevisionInInformationalVersion>true</IncludeSourceRevisionInInformationalVersion>
     <AssemblyName>EmbyPinyinPlugin</AssemblyName>
     <RootNamespace>EmbyPinyinPlugin</RootNamespace>
@@ -17,16 +17,24 @@
     <PackageReference Include="TinyPinyin" Version="1.1.0" />
     <!-- 添加对 Microsoft.Extensions.Logging.Abstractions 的引用 -->
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.0" />
-    <!-- 添加 ILRepack -->
-    <PackageReference Include="ILRepack" Version="2.0.42">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
+    <!-- 使用 ILRepack.Lib.MSBuild.Task 替代 ILRepack -->
+    <PackageReference Include="ILRepack.Lib.MSBuild.Task" Version="2.0.18.1" PrivateAssets="All" />
   </ItemGroup>
 
-  <!-- ILRepack 合并依赖 -->
+  <!-- ILRepack 合并依赖 (使用 ILRepack.Lib.MSBuild.Task) -->
   <Target Name="ILRepack" AfterTargets="Build" Condition="'$(Configuration)' == 'Release'">
-    <Exec Command="$(ILRepack) /out:&quot;$(TargetDir)$(TargetFileName)&quot; &quot;$(TargetPath)&quot; $(TargetDir)*.dll /lib:&quot;$(TargetDir)&quot; /primary" />
+    <ItemGroup>
+      <InputAssemblies Include="$(OutputPath)$(AssemblyName).dll" />
+      <InputAssemblies Include="$(OutputPath)*.dll" Exclude="$(OutputPath)$(AssemblyName).dll" />
+    </ItemGroup>
+    <ILRepack
+      OutputType="$(OutputType)"
+      MainAssembly="$(OutputPath)$(AssemblyName).dll"
+      OutputAssembly="$(OutputPath)$(AssemblyName).dll"
+      InputAssemblies="@(InputAssemblies)"
+      LibraryPath="$(OutputPath)"
+      InternalizeExclude="@(AssemblyAttribute)"
+      />
   </Target>
 
 </Project>
