@@ -4,6 +4,7 @@ using MediaBrowser.Controller.Entities.Movies; // Movie
 using MediaBrowser.Controller.Entities.TV; // Series, Episode
 using MediaBrowser.Controller.Providers; // ICustomMetadataProvider, ItemInfo, IDirectoryService
 using MediaBrowser.Model.Configuration; // 包含 LibraryOptions
+using MediaBrowser.Model.Entities; // 包含 ItemUpdateType
 using System.Threading; // 包含 CancellationToken
 using System.Threading.Tasks; // 包含 Task
 // 移除 Microsoft.Extensions.Logging 的 using
