@@ -1,6 +1,6 @@
 // Utils/PinyinHelper.cs
 using TinyPinyin;
-using System.Text.RegularExpressions; // 如果使用正则表达式
+//using System.Text.RegularExpressions; // 如果使用正则表达式
 
 namespace EmbyPinyinPlugin.Utils
 {
