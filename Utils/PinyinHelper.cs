@@ -16,8 +16,8 @@ namespace EmbyPinyinPlugin.Utils
                 return string.Empty;
 
             // 使用 TinyPinyin 的 GetPinyinInitials 方法
-            // separator 为 "" 表示不分割，直接连接所有首字母
-            return PinyinHelper.GetPinyinInitials(chineseText, "");
+            // 它只接受一个参数，不接受分隔符，因此会直接连接所有首字母
+            return PinyinHelper.GetPinyinInitials(chineseText); // 移除第二个参数 ""
         }
     }
 }
