@@ -41,25 +41,6 @@ namespace EmbyPinyinPlugin.Providers
             IDirectoryService directoryService,
             CancellationToken cancellationToken)
         {
-            // --- 最简单的调试代码开始 (仅用于测试) ---
-            // 检查 info.Name 是否为空
-            var debugNameToProcess = info.Name;
-            if (string.IsNullOrEmpty(debugNameToProcess))
-            {
-                throw new Exception($"DEBUG GetMeta info.Name is null or empty for item with Id: {info.Id}");
-            }
-            
-            // 检查 TinyPinyin 是否能处理名称
-            string debugPinyinInitials = PinyinHelper.GetPinyinInitials(debugNameToProcess);
-            if (string.IsNullOrEmpty(debugPinyinInitials))
-            {
-                throw new Exception($"DEBUG GetMeta PinyinHelper returned null or empty for debugNameToProcess: '{debugNameToProcess}', item Id: {info.Id}");
-            }
-            
-            // 确认代码执行到这里
-            throw new Exception($"DEBUG GetMeta About to create item and set SortName to '{debugPinyinInitials.ToUpper()}' for item Id: {info.Id}, Name: {info.Name}");
-            // --- 最简单的调试代码结束 ---
-
             // 1. 获取 Name (或 OriginalTitle)
             var nameToProcess = info.Name; // 或 info.OriginalTitle，根据需求
             if (string.IsNullOrEmpty(nameToProcess))
@@ -85,6 +66,7 @@ namespace EmbyPinyinPlugin.Providers
             item.SetSortNameDirect(pinyinInitials.ToUpper()); // 关键：设置拼音首字母
 
             // 尝试锁定 SortName 字段，防止被后续提供者覆盖 (需要 using MediaBrowser.Model.Entities;)
+            // 注意：根据之前的测试，这行可能无效或导致问题，可以考虑移除
             // item.LockedFields = new [] { MetadataFields.SortName };
 
             // 4. 创建 MetadataResult 并返回
