@@ -25,30 +25,37 @@ jobs:
 
     - name: Restore dependencies
       run: dotnet restore
-      # 添加 --interactive 标志（可选，以防某些包需要交互式认证）
-      # run: dotnet restore --interactive
 
     - name: Build (Release)
       run: dotnet build --no-restore --configuration Release
-      # 添加 --no-incremental 标志（可选，强制完全重新编译）
-      # run: dotnet build --no-restore --no-incremental --configuration Release
 
     # 添加一个步骤来检查编译输出目录，方便调试
     - name: List build output
-      run: find . -name "*.dll" -type f -path "./**/bin/Release/net8.0/*" -ls
+      run: find . -name "EmbyPinyinPlugin.dll" -type f -path "./**/bin/Release/net8.0/*" -ls
+
+    # --- 新增步骤：创建自定义 ZIP ---
+    - name: Create ZIP without directory structure
+      run: |
+        # 确保目标文件存在
+        if [ ! -f "./bin/Release/net8.0/EmbyPinyinPlugin.dll" ]; then
+          echo "Error: ./bin/Release/net8.0/EmbyPinyinPlugin.dll not found!"
+          exit 1
+        fi
+        # 切换到输出目录
+        cd ./bin/Release/net8.0/
+        # 创建一个不包含目录结构的 ZIP 文件
+        zip -j ../EmbyPinyinPlugin-${{ github.sha }}.zip EmbyPinyinPlugin.dll
+        # 验证 ZIP 内容
+        echo "Contents of the created ZIP:"
+        unzip -l ../EmbyPinyinPlugin-${{ github.sha }}.zip
+        # 切换回工作目录
+        cd -
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
       with:
         name: EmbyPinyinPlugin-${{ github.sha }} # 生成的文件名包含提交 SHA
-        # 使用通配符查找 .dll 文件，更灵活
-        path: |
-          **/bin/Release/net8.0/EmbyPinyinPlugin.dll
-        # 如果上面的路径还是找不到，可以尝试更通用的查找方式
-        # path: |
-        #   **/bin/Release/net8.0/*.dll
-        #   **/bin/Release/net8.0/**/*.dll
-        # 如果路径中可能包含斜杠，使用 ${{ github.workspace }} 作为根目录
-        # path: ${{ github.workspace }}/**/bin/Release/net8.0/EmbyPinyinPlugin.dll
-        if-no-files-found: warn # 如果没找到文件，发出警告而不是失败
+        # 上传我们刚刚创建的自定义 ZIP 文件
+        path: ./bin/Release/net8.0/EmbyPinyinPlugin-${{ github.sha }}.zip
+        if-no-files-found: error # 如果没找到文件，工作流失败
         retention-days: 30 # 保留 30 天
