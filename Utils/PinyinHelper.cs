@@ -1,4 +1,4 @@
-// Utils/PinyinHelper.cs
+// Utils/PinyinHelper.cs - 正确的实现
 using TinyPinyin;
 
 namespace EmbyPinyinPlugin.Utils
@@ -15,9 +15,8 @@ namespace EmbyPinyinPlugin.Utils
             if (string.IsNullOrWhiteSpace(chineseText))
                 return string.Empty;
 
-            // 使用 TinyPinyin 的 GetPinyinInitials 方法
-            // 它只接受一个参数，不接受分隔符，因此会直接连接所有首字母
-            return PinyinHelper.GetPinyinInitials(chineseText); // 移除第二个参数 ""
+            // 正确！调用 TinyPinyin 库的 PinyinHelper.GetPinyinInitials 方法
+            return TinyPinyin.PinyinHelper.GetPinyinInitials(chineseText, ""); // 使用 TinyPinyin 库，分隔符为 ""
         }
     }
 }
