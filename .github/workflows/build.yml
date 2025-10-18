@@ -1,0 +1,54 @@
+name: Build Emby Plugin
+
+on:
+  # 允许手动触发
+  workflow_dispatch:
+  # # 在推送到 main 分支时触发
+  # push:
+  #   branches: [ "main" ]
+  # # 在创建 Pull Request 时触发
+  # pull_request:
+  #   branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x # 确保与项目文件中的 TargetFramework 匹配
+
+    - name: Restore dependencies
+      run: dotnet restore
+      # 添加 --interactive 标志（可选，以防某些包需要交互式认证）
+      # run: dotnet restore --interactive
+
+    - name: Build (Release)
+      run: dotnet build --no-restore --configuration Release
+      # 添加 --no-incremental 标志（可选，强制完全重新编译）
+      # run: dotnet build --no-restore --no-incremental --configuration Release
+
+    # 添加一个步骤来检查编译输出目录，方便调试
+    - name: List build output
+      run: find . -name "*.dll" -type f -path "./**/bin/Release/net8.0/*" -ls
+
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: EmbyPinyinPlugin-${{ github.sha }} # 生成的文件名包含提交 SHA
+        # 使用通配符查找 .dll 文件，更灵活
+        path: |
+          **/bin/Release/net8.0/EmbyPinyinPlugin.dll
+        # 如果上面的路径还是找不到，可以尝试更通用的查找方式
+        # path: |
+        #   **/bin/Release/net8.0/*.dll
+        #   **/bin/Release/net8.0/**/*.dll
+        # 如果路径中可能包含斜杠，使用 ${{ github.workspace }} 作为根目录
+        # path: ${{ github.workspace }}/**/bin/Release/net8.0/EmbyPinyinPlugin.dll
+        if-no-files-found: warn # 如果没找到文件，发出警告而不是失败
+        retention-days: 30 # 保留 30 天
