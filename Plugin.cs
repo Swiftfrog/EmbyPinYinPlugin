@@ -3,12 +3,9 @@ using MediaBrowser.Common.Configuration; // IConfigurationManager
 using MediaBrowser.Common.Plugins; // IPlugin, BasePlugin
 using MediaBrowser.Model.Plugins; // BasePluginConfiguration
 using MediaBrowser.Model.Serialization; // IJsonSerializer
-using System;
-// IApplicationHost 在 MediaBrowser.Common 命名空间下
-using MediaBrowser.Common; 
-// 引入你的提供者和任务命名空间
+using System;// IApplicationHost 在 MediaBrowser.Common 命名空间下
+using MediaBrowser.Common; // 引入你的提供者和任务命名空间
 using EmbyPinyinPlugin.Providers;
-// using EmbyPinyinPlugin.Services; // 不需要引用 Services (如果已创建)
 
 namespace EmbyPinyinPlugin
 {
