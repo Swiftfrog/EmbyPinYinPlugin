@@ -10,9 +10,9 @@ using System.Threading; // 包含 CancellationToken
 using System.Threading.Tasks; // 包含 Task
 using MediaBrowser.Model.Entities; // 包含 MetadataFields
 using System; // 包含 Activator
-using EmbyPinyinPlugin.Utils; // 包含 PinyinHelper
+using PinYinSort.Utils; // 包含 PinyinHelper
 
-namespace EmbyPinyinPlugin.Providers
+namespace PinYinSort.Providers
 {
     /// <summary>
     /// 为电影元数据提供拼音首字母排序功能。

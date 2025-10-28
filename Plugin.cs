@@ -5,9 +5,9 @@ using MediaBrowser.Model.Plugins; // BasePluginConfiguration
 using MediaBrowser.Model.Serialization; // IJsonSerializer
 using System;// IApplicationHost 在 MediaBrowser.Common 命名空间下
 using MediaBrowser.Common; // 引入你的提供者和任务命名空间
-using EmbyPinyinPlugin.Providers;
+using PinYinSort.Providers;
 
-namespace EmbyPinyinPlugin
+namespace PinYinSort
 {
     public class Plugin : BasePlugin<PluginConfiguration>, IPlugin
     {

@@ -1,7 +1,7 @@
 // Utils/PinyinHelper.cs
 using TinyPinyin;
 
-namespace EmbyPinyinPlugin.Utils
+namespace PinYinSort.Utils
 {
     public static class PinyinHelper
     {

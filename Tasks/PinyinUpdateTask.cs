@@ -9,10 +9,10 @@ using System.Threading; // CancellationToken
 using System.Threading.Tasks; // Task
 using System.Collections.Generic; // IEnumerable, List
 using System; // Exception, ArgumentException
-using EmbyPinyinPlugin.Utils; // PinyinHelper
+using PinYinSort.Utils; // PinyinHelper
 using System.Linq; // 用于 ToList() 和 Contains() 扩展方法
 
-namespace EmbyPinyinPlugin.Tasks
+namespace PinYinSort.Tasks
 {
     /// 定义一个计划任务，用于批量更新媒体项的 SortName 和 OriginalTitle，以支持拼音排序和搜索。
     public class PinyinUpdateTask : IScheduledTask
@@ -60,7 +60,7 @@ namespace EmbyPinyinPlugin.Tasks
         public async Task Execute(CancellationToken cancellationToken, IProgress<double> progress)
         {
             // 修正：使用 Emby 的 ILogger.Info 方法
-            _logger.Info("开始执行拼音处理计划任务...");
+            _logger.Info("[PinYinSort]: 开始执行拼音处理计划任务...");
 
             // 1. 查询所有需要处理的媒体项
             // 包括 Movie, Series, Episode, MusicAlbum, MusicArtist, Video, Photo, BoxSet
@@ -76,12 +76,12 @@ namespace EmbyPinyinPlugin.Tasks
             // 修正 1: 使用 Length 而不是 Count
             var totalItems = allItems.Length; 
             // 修正：使用 Emby 的 ILogger.Info 方法
-            _logger.Info($"查询到 {totalItems} 个媒体项需要处理。");
+            _logger.Info($"[PinYinSort]: 查询到 {totalItems} 个媒体项需要处理。");
 
             if (totalItems == 0)
             {
                 // 修正：使用 Emby 的 ILogger.Info 方法
-                _logger.Info("没有找到需要处理的媒体项。任务结束。");
+                _logger.Info("[PinYinSort]: 没有找到需要处理的媒体项。任务结束。");
                 return;
             }
 
@@ -102,19 +102,19 @@ namespace EmbyPinyinPlugin.Tasks
                         // 修正 2: 移除 _libraryManager 参数
                         item.UpdateToRepository(ItemUpdateType.MetadataEdit);
                         // 修正：使用 Emby 的 ILogger.Debug 方法
-                        _logger.Debug($"已更新项目: {item.Name} (ID: {item.Id})");
+                        _logger.Debug($"[PinYinSort]: 已更新项目: {item.Name} (ID: {item.Id})");
                     }
                     else
                     {
                         // 修正：使用 Emby 的 ILogger.Debug 方法
-                        _logger.Debug($"项目无需更新: {item.Name} (ID: {item.Id})");
+                        _logger.Debug($"[PinYinSort]: 项目无需更新: {item.Name} (ID: {item.Id})");
                     }
                 }
                 catch (Exception ex)
                 {
                     // 记录处理单个项目时发生的错误，但不中断整个任务
                     // 修正：使用 Emby 的 ILogger.Error 方法
-                    _logger.Error($"处理项目时出错: {item.Name} (ID: {item.Id})", ex);
+                    _logger.Error($"[PinYinSort]: 处理项目时出错: {item.Name} (ID: {item.Id})", ex);
                 }
 
                 processedCount++;
@@ -127,7 +127,7 @@ namespace EmbyPinyinPlugin.Tasks
             }
 
             // 修正：使用 Emby 的 ILogger.Info 方法
-            _logger.Info($"拼音处理计划任务执行完毕。共处理 {processedCount} 个项目。");
+            _logger.Info($"[PinYinSort]: 拼音处理计划任务执行完毕。共处理 {processedCount} 个项目。");
         }
 
         /// <summary>
@@ -142,7 +142,7 @@ namespace EmbyPinyinPlugin.Tasks
             if (string.IsNullOrEmpty(nameToProcess))
             {
                 // 修正：使用 Emby 的 ILogger.Debug 方法
-                _logger.Debug($"项目名称为空，跳过: {item.Id}");
+                _logger.Debug($"[PinYinSort]: 项目名称为空，跳过: {item.Id}");
                 return false;
             }
 
@@ -151,7 +151,7 @@ namespace EmbyPinyinPlugin.Tasks
             {
                 // 如果不包含中文字符，则不进行拼音处理
                 // 修正：使用 Emby 的 ILogger.Debug 方法
-                _logger.Debug($"项目名称不包含中文，跳过: {item.Name} (ID: {item.Id})");
+                _logger.Debug($"[PinYinSort]: 项目名称不包含中文，跳过: {item.Name} (ID: {item.Id})");
                 return false;
             }
 
@@ -160,7 +160,7 @@ namespace EmbyPinyinPlugin.Tasks
             if (string.IsNullOrEmpty(pinyinInitials))
             {
                 // 修正：使用 Emby 的 ILogger.Debug 方法
-                _logger.Debug($"计算拼音失败，跳过: {item.Name} (ID: {item.Id})");
+                _logger.Debug($"[PinYinSort]: 计算拼音失败，跳过: {item.Name} (ID: {item.Id})");
                 return false;
             }
 
@@ -171,14 +171,14 @@ namespace EmbyPinyinPlugin.Tasks
             if (currentSortName.Equals(pinyinInitialsUpper, StringComparison.Ordinal))
             {
                 // 修正：使用 Emby 的 ILogger.Debug 方法
-                _logger.Debug($"SortName 已经是 {pinyinInitialsUpper}，无需更新: {item.Name} (ID: {item.Id})");
+                _logger.Debug($"[PinYinSort]: SortName 已经是 {pinyinInitialsUpper}，无需更新: {item.Name} (ID: {item.Id})");
             }
             else
             {
                 // 5. 设置 SortName
                 item.SetSortNameDirect(pinyinInitialsUpper);
                 // 修正：使用 Emby 的 ILogger.Debug 方法
-                _logger.Debug($"已设置 SortName 为 {pinyinInitialsUpper}: {item.Name} (ID: {item.Id})");
+                _logger.Debug($"[PinYinSort]: 已设置 SortName 为 {pinyinInitialsUpper}: {item.Name} (ID: {item.Id})");
             }
 
             // 6. 设置 LockedFields (修正错误 CS0019)
@@ -197,18 +197,18 @@ namespace EmbyPinyinPlugin.Tasks
                     newLockedFieldsList.Add(MetadataFields.SortName);
                     item.LockedFields = newLockedFieldsList.ToArray(); // 转换回数组并赋值
                     // 修正：使用 Emby 的 ILogger.Debug 方法
-                    _logger.Debug($"已锁定 SortName 字段: {item.Name} (ID: {item.Id})");
+                    _logger.Debug($"[PinYinSort]: 已锁定 SortName 字段: {item.Name} (ID: {item.Id})");
                 }
                 else
                 {
                     // 修正：使用 Emby 的 ILogger.Debug 方法
-                     _logger.Debug($"SortName 字段已被锁定，无需重复锁定: {item.Name} (ID: {item.Id})");
+                     _logger.Debug($"[PinYinSort]: SortName 字段已被锁定，无需重复锁定: {item.Name} (ID: {item.Id})");
                 }
             }
             catch (Exception ex)
             {
                 // 修正：使用 Emby 的 ILogger.Error 方法
-                _logger.Error($"尝试锁定 SortName 字段时出错: {item.Name} (ID: {item.Id})", ex);
+                _logger.Error($"[PinYinSort]: 尝试锁定 SortName 字段时出错: {item.Name} (ID: {item.Id})", ex);
                 // 即使锁定失败，也继续处理 OriginalTitle
             }
 
@@ -218,7 +218,7 @@ namespace EmbyPinyinPlugin.Tasks
             if (currentOriginalTitle.Contains(expectedPinyinTag))
             {
                 // 修正：使用 Emby 的 ILogger.Debug 方法
-                 _logger.Debug($"OriginalTitle 已包含拼音标签 {expectedPinyinTag}，无需更新: {item.Name} (ID: {item.Id})");
+                 _logger.Debug($"[PinYinSort]: OriginalTitle 已包含拼音标签 {expectedPinyinTag}，无需更新: {item.Name} (ID: {item.Id})");
             }
             else
             {
@@ -227,7 +227,7 @@ namespace EmbyPinyinPlugin.Tasks
                     : $"{currentOriginalTitle}{expectedPinyinTag}";
                 item.OriginalTitle = newOriginalTitle;
                 // 修正：使用 Emby 的 ILogger.Debug 方法
-                _logger.Debug($"已更新 OriginalTitle 为 {newOriginalTitle}: {item.Name} (ID: {item.Id})");
+                _logger.Debug($"[PinYinSort]: 已更新 OriginalTitle 为 {newOriginalTitle}: {item.Name} (ID: {item.Id})");
             }
 
             // 如果 SortName 或 OriginalTitle 有任何更改，则认为项目被更新
