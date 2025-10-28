@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
   # 在推送到 main 分支或 v* 标签时触发
   push:
-    branches: [ "main" ]
+    branches: [ "main", "v*" ]
     tags: [ "v*" ]
   # 在创建到 main 分支或 v* 分支的 Pull Request 时触发
   pull_request:
