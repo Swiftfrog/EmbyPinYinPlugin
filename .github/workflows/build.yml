@@ -39,7 +39,8 @@ jobs:
     # 路径已根据您的日志输出 (D:\a\PinYinSort\PinYinSort\...) 进行调整
     - name: List build output
       run: |
-        $buildDir = "./PinYinSort/bin/Release/net8.0/"
+        # 路径已修复：移除了 PinYinSort/，使其相对于 PinYinSort 目录正确
+        $buildDir = "./bin/Release/net8.0/"
         Write-Output "Checking for DLL in: $buildDir"
         Get-ChildItem -Path $buildDir -Filter "PinYinSort.dll" -Recurse | ForEach-Object {  
           Write-Output $_.FullName
@@ -52,7 +53,8 @@ jobs:
         # 变量已更新为 PinYinSort
         $projectName = "PinYinSort"
         $zipFileName = "${projectName}-${{ github.sha }}.zip"
-        $outputDir = "./${projectName}/bin/Release/net8.0/"
+        # 路径已修复：移除了 PinYinSort/
+        $outputDir = "./bin/Release/net8.0/"
         $dllPath = "$outputDir/${projectName}.dll"
         $zipPath = "$outputDir/$zipFileName"
         
@@ -81,8 +83,9 @@ jobs:
       with:
         # 名字已更新
         name: PinYinSort-${{ github.sha }}
-        # 路径已更新
-        path: ./PinYinSort/bin/Release/net8.0/PinYinSort-${{ github.sha }}.zip
+        # 路径已修复：移除了 PinYinSort/
+        path: ./bin/Release/net8.0/PinYinSort-${{ github.sha }}.zip
         if-no-files-found: error # 如果没找到文件，工作流失败
         retention-days: 30 # 保留 30 天
+
 
