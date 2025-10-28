@@ -1,12 +1,14 @@
-name: Build Emby Plugin
+# .github/workflows/build.yml
+name: Build PinYinSort Plugin
 
 on:
   # 允许手动触发
   workflow_dispatch:
-  # 在推送到 main 分支时触发
+  # 在推送到 main 分支或 v* 标签时触发
   push:
-    branches: [ "main", "v*" ]
-  # 在创建 Pull Request 时触发
+    branches: [ "main" ]
+    tags: [ "v*" ]
+  # 在创建到 main 分支或 v* 分支的 Pull Request 时触发
   pull_request:
     branches: [ "main", "v*" ]
 
@@ -25,30 +27,40 @@ jobs:
         dotnet-version: 8.0.x # 确保与项目文件中的 TargetFramework 匹配
 
     - name: Restore dependencies
+      # 假设 .sln 或 .csproj 文件位于仓库根目录或 PinYinSort 目录中
       run: dotnet restore
 
     - name: Build (Release)
+      # --no-restore 因为上一步已经 restore 过了
+      # --configuration Release 指定发布配置
       run: dotnet build --no-restore --configuration Release
 
     # 添加一个步骤来检查编译输出目录，方便调试
-    - name: List build output (after ILRepack)
+    # 路径已根据您的日志输出 (D:\a\PinYinSort\PinYinSort\...) 进行调整
+    - name: List build output
       run: |
-        Get-ChildItem -Path "./bin/Release/net8.0/" -Filter "EmbyPinyinPlugin.dll" -Recurse | ForEach-Object { 
+        $buildDir = "./PinYinSort/bin/Release/net8.0/"
+        Write-Output "Checking for DLL in: $buildDir"
+        Get-ChildItem -Path $buildDir -Filter "PinYinSort.dll" -Recurse | ForEach-Object {  
           Write-Output $_.FullName
           Write-Output "Size: $($_.Length) bytes"
         }
 
-    # --- 创建仅包含主 DLL 的 ZIP (现在这个 DLL 已经包含了 TinyPinyin) ---
-    - name: Create ZIP with main DLL only
+    # --- 创建仅包含主 DLL 的 ZIP ---
+    - name: Create ZIP file
       run: |
-        $zipFileName = "EmbyPinyinPlugin-${{ github.sha }}.zip"
-        $outputDir = "./bin/Release/net8.0/"
-        $dllPath = "$outputDir/EmbyPinyinPlugin.dll"
+        # 变量已更新为 PinYinSort
+        $projectName = "PinYinSort"
+        $zipFileName = "${projectName}-${{ github.sha }}.zip"
+        $outputDir = "./${projectName}/bin/Release/net8.0/"
+        $dllPath = "$outputDir/${projectName}.dll"
         $zipPath = "$outputDir/$zipFileName"
         
         # 确保 DLL 存在
         if (-not (Test-Path $dllPath)) {
             Write-Error "DLL file not found: $dllPath"
+            # 列出目录内容以帮助调试
+            Get-ChildItem -Path $outputDir -Recurse
             exit 1
         }
         
@@ -67,9 +79,10 @@ jobs:
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: EmbyPinyinPlugin-${{ github.sha }} # 生成的文件名包含提交 SHA
-        # 上传我们刚刚创建的包含主 DLL 的 ZIP 文件 (该 DLL 已合并 TinyPinyin)
-        # 使用与 PowerShell 脚本中完全相同的路径构建方式
-        path: ./bin/Release/net8.0/EmbyPinyinPlugin-${{ github.sha }}.zip
+        # 名字已更新
+        name: PinYinSort-${{ github.sha }}
+        # 路径已更新
+        path: ./PinYinSort/bin/Release/net8.0/PinYinSort-${{ github.sha }}.zip
         if-no-files-found: error # 如果没找到文件，工作流失败
         retention-days: 30 # 保留 30 天
+
