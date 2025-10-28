@@ -14,17 +14,13 @@ using System.Linq; // 用于 ToList() 和 Contains() 扩展方法
 
 namespace EmbyPinyinPlugin.Tasks
 {
-    /// <summary>
     /// 定义一个计划任务，用于批量更新媒体项的 SortName 和 OriginalTitle，以支持拼音排序和搜索。
-    /// </summary>
     public class PinyinUpdateTask : IScheduledTask
     {
         private readonly ILibraryManager _libraryManager;
         private readonly ILogger _logger; // 使用 Emby 的 ILogger
 
-        /// <summary>
         /// 构造函数，通过依赖注入获取所需服务。
-        /// </summary>
         /// <param name="libraryManager">Emby 的库管理器。</param>
         /// <param name="logger">日志记录器 (Emby 的 ILogger)。</param>
         public PinyinUpdateTask(ILibraryManager libraryManager, ILogger logger) // 使用 Emby 的 ILogger
@@ -33,29 +29,19 @@ namespace EmbyPinyinPlugin.Tasks
             _logger = logger;
         }
 
-        /// <summary>
         /// 任务的显示名称。
-        /// </summary>
-        public string Name => "拼音排序与搜索处理任务";
+        public string Name => "PinYinSort for Chinese";
 
-        /// <summary>
         /// 任务的唯一标识符 (Key)。
-        /// </summary>
         public string Key => "PinyinToolsScheduledTask";
 
-        /// <summary>
         /// 任务的描述。
-        /// </summary>
         public string Description => "扫描媒体库，为中文标题的媒体生成拼音简拼用于排序和搜索。";
 
-        /// <summary>
         /// 任务所属的类别。
-        /// </summary>
-        public string Category => "元数据";
+        public string Category => "PinYinSort";
 
-        /// <summary>
         /// 获取任务的默认触发器 (例如，每天凌晨3点)。
-        /// </summary>
         /// <returns>触发器信息集合。</returns>
         public IEnumerable<TaskTriggerInfo> GetDefaultTriggers()
         {
@@ -67,9 +53,7 @@ namespace EmbyPinyinPlugin.Tasks
             };
         }
 
-        /// <summary>
         /// 执行任务的核心逻辑。
-        /// </summary>
         /// <param name="cancellationToken">用于取消任务的令牌。</param>
         /// <param name="progress">用于报告任务进度的接口。</param>
         /// <returns>一个表示异步操作的任务。</returns>

@@ -3,12 +3,12 @@ name: Build Emby Plugin
 on:
   # 允许手动触发
   workflow_dispatch:
-  # # 在推送到 main 分支时触发
-  # push:
-  #   branches: [ "main" ]
-  # # 在创建 Pull Request 时触发
-  # pull_request:
-  #   branches: [ "main" ]
+  # 在推送到 main 分支时触发
+  push:
+    branches: [ "main", "v*" ]
+  # 在创建 Pull Request 时触发
+  pull_request:
+    branches: [ "main", "v*" ]
 
 jobs:
   build:

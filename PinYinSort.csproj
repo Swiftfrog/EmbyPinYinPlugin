@@ -6,8 +6,8 @@
     <FileVersion>1.0.0.0</FileVersion>
     <CopyLocalLockFileAssemblies>True</CopyLocalLockFileAssemblies>
     <IncludeSourceRevisionInInformationalVersion>true</IncludeSourceRevisionInInformationalVersion>
-    <AssemblyName>EmbyPinyinPlugin</AssemblyName>
-    <RootNamespace>EmbyPinyinPlugin</RootNamespace>
+    <AssemblyName>PinYinSort</AssemblyName>
+    <RootNamespace>PinYinSort</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
@@ -18,13 +18,12 @@
     <!-- 添加对 Microsoft.Extensions.Logging.Abstractions 的引用 -->
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.0" />
     <!-- 添加 ILRepack -->
-    <PackageReference Include="ILRepack" Version="2.0.44"> <!-- 使用与 StrmAssistant 相同的版本 -->
+    <PackageReference Include="ILRepack" Version="2.0.44">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
   </ItemGroup>
 
-  <!-- ILRepack 合并依赖 (模仿 StrmAssistant 的 PostBuild 事件) -->
   <Target Name="ILRepack" AfterTargets="Build" Condition="'$(Configuration)' == 'Release'">
     <Exec Command="$(ILRepack) /out:&quot;$(OutputPath)$(TargetFileName)&quot; &quot;$(TargetPath)&quot; $(TargetDir)TinyPinyin.dll /lib:&quot;$(TargetDir)&quot;" />
   </Target>
