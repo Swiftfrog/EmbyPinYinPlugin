@@ -1,91 +1,33 @@
-# .github/workflows/build.yml
 name: Build PinYinSort Plugin
 
 on:
-  # 允许手动触发
   workflow_dispatch:
-  # 在推送到 main 分支或 v* 标签时触发
   push:
     branches: [ "main", "v*" ]
     tags: [ "v*" ]
-  # 在创建到 main 分支或 v* 分支的 Pull Request 时触发
   pull_request:
     branches: [ "main", "v*" ]
 
 jobs:
   build:
-    # 关键：使用 windows-latest
     runs-on: windows-latest
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Setup .NET
+    - name: Setup .NET 8
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: 8.0.x # 确保与项目文件中的 TargetFramework 匹配
+        dotnet-version: 8.0.x
 
-    - name: Restore dependencies
-      # 假设 .sln 或 .csproj 文件位于仓库根目录或 PinYinSort 目录中
-      run: dotnet restore
-
-    - name: Build (Release)
-      # --no-restore 因为上一步已经 restore 过了
-      # --configuration Release 指定发布配置
+    - name: Build plugin (Release)
       run: dotnet build --no-restore --configuration Release
-
-    # 添加一个步骤来检查编译输出目录，方便调试
-    # 路径已根据您的日志输出 (D:\a\PinYinSort\PinYinSort\...) 进行调整
-    - name: List build output
-      run: |
-        # 路径已修复：移除了 PinYinSort/，使其相对于 PinYinSort 目录正确
-        $buildDir = "./bin/Release/net8.0/"
-        Write-Output "Checking for DLL in: $buildDir"
-        Get-ChildItem -Path $buildDir -Filter "PinYinSort.dll" -Recurse | ForEach-Object {  
-          Write-Output $_.FullName
-          Write-Output "Size: $($_.Length) bytes"
-        }
-
-    # --- 创建仅包含主 DLL 的 ZIP ---
-    - name: Create ZIP file
-      run: |
-        # 变量已更新为 PinYinSort
-        $projectName = "PinYinSort"
-        $zipFileName = "${projectName}-${{ github.sha }}.zip"
-        # 路径已修复：移除了 PinYinSort/
-        $outputDir = "./bin/Release/net8.0/"
-        $dllPath = "$outputDir/${projectName}.dll"
-        $zipPath = "$outputDir/$zipFileName"
-        
-        # 确保 DLL 存在
-        if (-not (Test-Path $dllPath)) {
-            Write-Error "DLL file not found: $dllPath"
-            # 列出目录内容以帮助调试
-            Get-ChildItem -Path $outputDir -Recurse
-            exit 1
-        }
-        
-        # 创建 ZIP
-        Compress-Archive -Path $dllPath -DestinationPath $zipPath -Force
-        Write-Output "Created ZIP: $zipPath"
-        
-        # 验证 ZIP 内容
-        Write-Output "Contents of the created ZIP:"
-        $tempDir = "$outputDir/temp_zip_contents/"
-        New-Item -ItemType Directory -Path $tempDir -Force
-        Expand-Archive -Path $zipPath -DestinationPath $tempDir
-        Get-ChildItem -Path $tempDir -Recurse
-        Remove-Item -Path $tempDir -Recurse -Force # 清理临时目录
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
       with:
-        # 名字已更新
-        name: PinYinSort-${{ github.sha }}
-        # 路径已修复：移除了 PinYinSort/
-        path: ./bin/Release/net8.0/PinYinSort-${{ github.sha }}.zip
-        if-no-files-found: error # 如果没找到文件，工作流失败
-        retention-days: 30 # 保留 30 天
-
-
+        name: PinYinSort
+        path: bin/Release/net8.0/PinYinSort.dll
+#        if-no-files-found: error
+#        retention-days: 30
