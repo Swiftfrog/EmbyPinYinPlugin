@@ -2,8 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework> <!-- 保持 net8.0 -->
-    <AssemblyVersion>1.0.0.0</AssemblyVersion>
-    <FileVersion>1.0.0.0</FileVersion>
+    <AssemblyVersion>v2.251104</AssemblyVersion>
+    <FileVersion>v2.251104</FileVersion>
     <CopyLocalLockFileAssemblies>True</CopyLocalLockFileAssemblies>
     <IncludeSourceRevisionInInformationalVersion>true</IncludeSourceRevisionInInformationalVersion>
     <AssemblyName>PinYinSort</AssemblyName>
@@ -15,8 +15,6 @@
     <PackageReference Include="mediabrowser.server.core" Version="4.9.1.80" />
     <!-- 使用 TinyPinyin -->
     <PackageReference Include="TinyPinyin" Version="1.1.0" />
-    <!-- 添加对 Microsoft.Extensions.Logging.Abstractions 的引用 -->
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.0" />
     <!-- 添加 ILRepack -->
     <PackageReference Include="ILRepack" Version="2.0.44">
       <PrivateAssets>all</PrivateAssets>
