@@ -1,4 +1,3 @@
-// Providers/PinyinCustomMetadataProvider.cs
 using MediaBrowser.Controller.Entities;
 using MediaBrowser.Controller.Entities.Movies; // Movie
 using MediaBrowser.Controller.Entities.TV; // Series, Episode
@@ -16,19 +15,11 @@ namespace PinYinSort.Providers
 {
     /// <summary>
     /// 为电影元数据提供拼音首字母排序功能。
-    /// 实现 ICustomMetadataProvider 和 IHasOrder 以在元数据合并后期进行干预，并确保优先级。
     /// </summary>
     public class PinyinCustomMetadataProviderMovie : ICustomMetadataProvider<Movie>, IHasOrder
     {
-        // 无参数构造函数 (如果需要依赖注入，请添加相应参数)
-        public PinyinCustomMetadataProviderMovie()
-        {
-        }
-
         public string Name => "Pinyin Custom Sorter Movie";
-
-        // 实现 IHasOrder 接口，返回较低的数字以获得较高优先级
-        public int Order => 0; // 在同类提供者中拥有最高优先级
+        public int Order => 0;
 
         public async Task<ItemUpdateType> FetchAsync(
             MetadataResult<Movie> itemResult,
@@ -37,47 +28,36 @@ namespace PinYinSort.Providers
             CancellationToken cancellationToken)
         {
             var item = itemResult.Item;
-
-            // 1. 获取 Name (或 OriginalTitle) 用于计算拼音
-            var nameToProcess = item.Name; // 或 item.OriginalTitle，根据需求
+            var nameToProcess = item.Name;
             if (string.IsNullOrEmpty(nameToProcess))
-            {
                 return ItemUpdateType.None;
-            }
 
-            // 2. 新增：判断是否包含中文字符
-            if (!PinyinHelper.ContainsChinese(nameToProcess))
+            // 在后台线程执行拼音判断和计算（CPU-bound）
+            var (hasChinese, pinyinInitials) = await Task.Run(() =>
             {
-                // 如果不包含中文字符，则不进行拼音处理，直接返回
+                if (!PinyinHelper.ContainsChinese(nameToProcess))
+                    return (false, (string)null);
+                return (true, PinyinHelper.GetPinyinInitials(nameToProcess));
+            }, cancellationToken);
+
+            if (!hasChinese || string.IsNullOrEmpty(pinyinInitials))
                 return ItemUpdateType.None;
-            }
 
-            // 3. 计算拼音简写
-            string pinyinInitials = PinyinHelper.GetPinyinInitials(nameToProcess);
-            if (string.IsNullOrEmpty(pinyinInitials))
-            {
-                 return ItemUpdateType.None;
-            }
+            // 主线程执行轻量属性设置（线程安全）
+            var pinyinUpper = pinyinInitials.ToUpper();
+            item.SetSortNameDirect(pinyinUpper);
+            item.LockedFields = new[] { MetadataFields.SortName };
 
-            // 4. 设置 SortName
-            item.SetSortNameDirect(pinyinInitials.ToUpper());
-
-            // 5. 锁定 SortName 字段，防止被后续流程覆盖
-            item.LockedFields = new [] { MetadataFields.SortName };
-
-            // 6. 更新 OriginalTitle
             var currentOriginalTitle = item.OriginalTitle ?? string.Empty;
-            if (!currentOriginalTitle.Contains($" #{pinyinInitials.ToUpper()}"))
+            if (!currentOriginalTitle.Contains($" #{pinyinUpper}"))
             {
-                item.OriginalTitle = string.IsNullOrEmpty(currentOriginalTitle) 
-                    ? pinyinInitials.ToUpper() 
-                    : $"{currentOriginalTitle} #{pinyinInitials.ToUpper()}";
+                item.OriginalTitle = string.IsNullOrEmpty(currentOriginalTitle)
+                    ? pinyinUpper
+                    : $"{currentOriginalTitle} #{pinyinUpper}";
             }
 
-            // 7. 返回更新类型
             return ItemUpdateType.MetadataEdit;
         }
-        
     }
 
     /// <summary>
@@ -85,12 +65,7 @@ namespace PinYinSort.Providers
     /// </summary>
     public class PinyinCustomMetadataProviderSeries : ICustomMetadataProvider<Series>, IHasOrder
     {
-        public PinyinCustomMetadataProviderSeries()
-        {
-        }
-
         public string Name => "Pinyin Custom Sorter Series";
-
         public int Order => 0;
 
         public async Task<ItemUpdateType> FetchAsync(
@@ -100,43 +75,32 @@ namespace PinYinSort.Providers
             CancellationToken cancellationToken)
         {
             var item = itemResult.Item;
-            // 1.获取name
             var nameToProcess = item.Name;
             if (string.IsNullOrEmpty(nameToProcess))
-            {
                 return ItemUpdateType.None;
+
+            var (hasChinese, pinyinInitials) = await Task.Run(() =>
+            {
+                if (!PinyinHelper.ContainsChinese(nameToProcess))
+                    return (false, (string)null);
+                return (true, PinyinHelper.GetPinyinInitials(nameToProcess));
+            }, cancellationToken);
+
+            if (!hasChinese || string.IsNullOrEmpty(pinyinInitials))
+                return ItemUpdateType.None;
+
+            var pinyinUpper = pinyinInitials.ToUpper();
+            item.SetSortNameDirect(pinyinUpper);
+            item.LockedFields = new[] { MetadataFields.SortName };
+
+            var currentOriginalTitle = item.OriginalTitle ?? string.Empty;
+            if (!currentOriginalTitle.Contains($" #{pinyinUpper}"))
+            {
+                item.OriginalTitle = string.IsNullOrEmpty(currentOriginalTitle)
+                    ? pinyinUpper
+                    : $"{currentOriginalTitle} #{pinyinUpper}";
             }
 
-            // 2. 判断是否包含中文字符
-            if (!PinyinHelper.ContainsChinese(nameToProcess))
-            {
-                // 如果不包含中文字符，则不进行拼音处理，直接返回
-                return ItemUpdateType.None;
-            }
-            // 3. 计算拼音简写
-            string pinyinInitials = PinyinHelper.GetPinyinInitials(nameToProcess);
-            if (string.IsNullOrEmpty(pinyinInitials))
-            {
-                 return ItemUpdateType.None;
-            }
-            
-            // 4. 设置 SortName
-            item.SetSortNameDirect(pinyinInitials.ToUpper());
-
-            // 5. 锁定 SortName 字段，防止被后续流程覆盖
-            item.LockedFields = new [] { MetadataFields.SortName };
-            
-            // 6. 更新 OriginalTitle
-            var currentOriginalTitle = item.OriginalTitle ?? string.Empty; // 处理 null 情况
-            // 只有当 OriginalTitle 不包含我们附加的拼音部分时，才进行更新，这可以避免重复附加
-            if (!currentOriginalTitle.Contains($" #{pinyinInitials.ToUpper()}"))
-            {
-                item.OriginalTitle = string.IsNullOrEmpty(currentOriginalTitle) 
-                    ? pinyinInitials.ToUpper() 
-                    : $"{currentOriginalTitle} #{pinyinInitials.ToUpper()}";
-            }
-            
-            // 7. 返回更新类型
             return ItemUpdateType.MetadataEdit;
         }
     }
@@ -146,12 +110,7 @@ namespace PinYinSort.Providers
     /// </summary>
     public class PinyinCustomMetadataProviderEpisode : ICustomMetadataProvider<Episode>, IHasOrder
     {
-        public PinyinCustomMetadataProviderEpisode()
-        {
-        }
-
         public string Name => "Pinyin Custom Sorter Episode";
-
         public int Order => 0;
 
         public async Task<ItemUpdateType> FetchAsync(
@@ -161,48 +120,35 @@ namespace PinYinSort.Providers
             CancellationToken cancellationToken)
         {
             var item = itemResult.Item;
-            // 1. 获取 Name (或 OriginalTitle) 用于计算拼音
-            var nameToProcess = item.Name; // 或 item.OriginalTitle
+            var nameToProcess = item.Name;
             if (string.IsNullOrEmpty(nameToProcess))
-            {
                 return ItemUpdateType.None;
-            }
-            // 2. 新增：判断是否包含中文字符
-            if (!PinyinHelper.ContainsChinese(nameToProcess))
+
+            var (hasChinese, pinyinInitials) = await Task.Run(() =>
             {
-                // 如果不包含中文字符，则不进行拼音处理，直接返回
+                if (!PinyinHelper.ContainsChinese(nameToProcess))
+                    return (false, (string)null);
+                return (true, PinyinHelper.GetPinyinInitials(nameToProcess));
+            }, cancellationToken);
+
+            if (!hasChinese || string.IsNullOrEmpty(pinyinInitials))
                 return ItemUpdateType.None;
-            }
-            
-            // 3. 计算拼音简写
-            string pinyinInitials = PinyinHelper.GetPinyinInitials(nameToProcess);
-            if (string.IsNullOrEmpty(pinyinInitials))
-            {
-                 return ItemUpdateType.None;
-            }
-            
-            // 4. 设置 SortName
-            item.SetSortNameDirect(pinyinInitials.ToUpper());
-            
-            // 5. 锁定 SortName 字段，防止被后续流程覆盖
-            item.LockedFields = new [] { MetadataFields.SortName };
-            
-            // 6. 更新 OriginalTitle，剧集的单集的标题就不添加搜索了，否则大堆第一集DYJ
-            
-            // 7. 返回更新类型
+
+            var pinyinUpper = pinyinInitials.ToUpper();
+            item.SetSortNameDirect(pinyinUpper);
+            item.LockedFields = new[] { MetadataFields.SortName };
+
+            // 注意：Episode 不修改 OriginalTitle（避免重复标注单集）
             return ItemUpdateType.MetadataEdit;
         }
     }
 
-    // 例如 BoxSet (合集)
+    /// <summary>
+    /// 为合集（BoxSet）元数据提供拼音首字母排序功能。
+    /// </summary>
     public class PinyinCustomMetadataProviderBoxSet : ICustomMetadataProvider<BoxSet>, IHasOrder
     {
-        public PinyinCustomMetadataProviderBoxSet()
-        {
-        }
-
         public string Name => "Pinyin Custom Sorter BoxSet";
-
         public int Order => 0;
 
         public async Task<ItemUpdateType> FetchAsync(
@@ -212,39 +158,32 @@ namespace PinYinSort.Providers
             CancellationToken cancellationToken)
         {
             var item = itemResult.Item;
-            var nameToProcess = item.Name; // 或 item.OriginalTitle
+            var nameToProcess = item.Name;
             if (string.IsNullOrEmpty(nameToProcess))
-            {
                 return ItemUpdateType.None;
-            }
 
-            // 2. 新增：判断是否包含中文字符
-            if (!PinyinHelper.ContainsChinese(nameToProcess))
+            var (hasChinese, pinyinInitials) = await Task.Run(() =>
             {
-                // 如果不包含中文字符，则不进行拼音处理，直接返回
+                if (!PinyinHelper.ContainsChinese(nameToProcess))
+                    return (false, (string)null);
+                return (true, PinyinHelper.GetPinyinInitials(nameToProcess));
+            }, cancellationToken);
+
+            if (!hasChinese || string.IsNullOrEmpty(pinyinInitials))
                 return ItemUpdateType.None;
-            }
 
-            string pinyinInitials = PinyinHelper.GetPinyinInitials(nameToProcess);
-            if (string.IsNullOrEmpty(pinyinInitials))
-            {
-                 return ItemUpdateType.None;
-            }
+            var pinyinUpper = pinyinInitials.ToUpper();
+            item.SetSortNameDirect(pinyinUpper);
+            item.LockedFields = new[] { MetadataFields.SortName };
 
-            item.SetSortNameDirect(pinyinInitials.ToUpper());
-
-            // 5. 锁定 SortName 字段，防止被后续流程覆盖
-            item.LockedFields = new [] { MetadataFields.SortName };
-            
-            // 6. 更新 OriginalTitle
             var currentOriginalTitle = item.OriginalTitle ?? string.Empty;
-            if (!currentOriginalTitle.Contains($" #{pinyinInitials.ToUpper()}"))
+            if (!currentOriginalTitle.Contains($" #{pinyinUpper}"))
             {
-                item.OriginalTitle = string.IsNullOrEmpty(currentOriginalTitle) 
-                    ? pinyinInitials.ToUpper() 
-                    : $"{currentOriginalTitle} #{pinyinInitials.ToUpper()}";
+                item.OriginalTitle = string.IsNullOrEmpty(currentOriginalTitle)
+                    ? pinyinUpper
+                    : $"{currentOriginalTitle} #{pinyinUpper}";
             }
-            
+
             return ItemUpdateType.MetadataEdit;
         }
     }
