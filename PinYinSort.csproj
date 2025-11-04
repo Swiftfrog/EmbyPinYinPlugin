@@ -2,8 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework> <!-- 保持 net8.0 -->
-    <AssemblyVersion>v2.251104</AssemblyVersion>
-    <FileVersion>v2.251104</FileVersion>
+    <AssemblyVersion>25.11.04</AssemblyVersion>
+    <FileVersion>25.11.04</FileVersion>
     <CopyLocalLockFileAssemblies>True</CopyLocalLockFileAssemblies>
     <IncludeSourceRevisionInInformationalVersion>true</IncludeSourceRevisionInInformationalVersion>
     <AssemblyName>PinYinSort</AssemblyName>
