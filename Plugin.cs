@@ -28,7 +28,7 @@ public class Plugin : BasePlugin<PluginConfiguration>, IPlugin, IHasThumbImage
     public Stream GetThumbImage()
     {
         var assembly = GetType().Assembly;
-        string resourceName = "PinYinSortLogo.webp";
+        string resourceName = "PinYinSort.PinYinSortLogo.webp";
         return assembly.GetManifestResourceStream(resourceName);
     }
     public ImageFormat ThumbImageFormat => ImageFormat.Webp;
