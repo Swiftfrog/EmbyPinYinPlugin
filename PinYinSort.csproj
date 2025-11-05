@@ -21,6 +21,10 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
   </ItemGroup>
+  
+  <ItemGroup>
+    <EmbeddedResource Include="PinYinSortLogo.webp" />
+  </ItemGroup>
 
   <Target Name="ILRepack" AfterTargets="Build" Condition="'$(Configuration)' == 'Release'">
     <Exec Command="$(ILRepack) /out:&quot;$(OutputPath)$(TargetFileName)&quot; &quot;$(TargetPath)&quot; $(TargetDir)TinyPinyin.dll /lib:&quot;$(TargetDir)&quot;" />
