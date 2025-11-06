@@ -155,41 +155,41 @@ public class PinYinSortProviderSeries : ICustomMetadataProvider<Series>, IHasOrd
 }
 
 // =============== Episode Provider ===============
-public class PinYinSortProviderEpisode : ICustomMetadataProvider<Episode>, IHasOrder
-{
-    public string Name => "Pinyin Sort Provider (Episode)";
-    public int Order => 0;
-
-    public async Task<ItemUpdateType> FetchAsync(
-        MetadataResult<Episode> itemResult,
-        MetadataRefreshOptions options,
-        LibraryOptions libraryOptions,
-        CancellationToken cancellationToken)
-    {
-        var config = Plugin.Instance.Configuration;
-        var item = itemResult.Item;
-        var nameToProcess = item.Name;
-
-        if (string.IsNullOrEmpty(nameToProcess) || !PinyinHelper.ContainsChinese(nameToProcess))
-            return ItemUpdateType.None;
-
-        string pinyinInitials = await Task.Run(() => PinyinHelper.GetPinyinInitials(nameToProcess), cancellationToken);
-        if (string.IsNullOrEmpty(pinyinInitials))
-            return ItemUpdateType.None;
-
-        var pinyinUpper = pinyinInitials.ToUpper();
-
-        // Episode 通常不处理 OriginalTitle（避免每集都加标签）
-        if (PinyinProviderHelper.ShouldUpdateSortName(item, pinyinUpper, config))
-        {
-            item.SetSortNameDirect(pinyinUpper);
-            PinyinProviderHelper.SafeAddLockedField(item, MetadataFields.SortName);
-            return ItemUpdateType.MetadataEdit;
-        }
-
-        return ItemUpdateType.None;
-    }
-}
+// public class PinYinSortProviderEpisode : ICustomMetadataProvider<Episode>, IHasOrder
+// {
+//     public string Name => "Pinyin Sort Provider (Episode)";
+//     public int Order => 0;
+// 
+//     public async Task<ItemUpdateType> FetchAsync(
+//         MetadataResult<Episode> itemResult,
+//         MetadataRefreshOptions options,
+//         LibraryOptions libraryOptions,
+//         CancellationToken cancellationToken)
+//     {
+//         var config = Plugin.Instance.Configuration;
+//         var item = itemResult.Item;
+//         var nameToProcess = item.Name;
+// 
+//         if (string.IsNullOrEmpty(nameToProcess) || !PinyinHelper.ContainsChinese(nameToProcess))
+//             return ItemUpdateType.None;
+// 
+//         string pinyinInitials = await Task.Run(() => PinyinHelper.GetPinyinInitials(nameToProcess), cancellationToken);
+//         if (string.IsNullOrEmpty(pinyinInitials))
+//             return ItemUpdateType.None;
+// 
+//         var pinyinUpper = pinyinInitials.ToUpper();
+// 
+//         // Episode 通常不处理 OriginalTitle（避免每集都加标签）
+//         if (PinyinProviderHelper.ShouldUpdateSortName(item, pinyinUpper, config))
+//         {
+//             item.SetSortNameDirect(pinyinUpper);
+//             PinyinProviderHelper.SafeAddLockedField(item, MetadataFields.SortName);
+//             return ItemUpdateType.MetadataEdit;
+//         }
+// 
+//         return ItemUpdateType.None;
+//     }
+// }
 
 // =============== BoxSet Provider ===============
 public class PinYinSortProviderBoxSet : ICustomMetadataProvider<BoxSet>, IHasOrder
