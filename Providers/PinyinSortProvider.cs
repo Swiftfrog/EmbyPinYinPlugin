@@ -1,18 +1,17 @@
-//PinyinCustomMetadataProvider.cs
-using MediaBrowser.Controller.Entities;
-using MediaBrowser.Controller.Entities.Movies; // Movie
-using MediaBrowser.Controller.Entities.TV; // Series, Episode
-using MediaBrowser.Controller.Entities.Audio; // MusicAlbum, MusicArtist
-using MediaBrowser.Controller.Providers; // ICustomMetadataProvider, ItemInfo, IDirectoryService
-using MediaBrowser.Controller.Library; // 包含 ItemUpdateType
-using MediaBrowser.Model.Configuration; // 包含 LibraryOptions
-using System.Threading; // 包含 CancellationToken
-using System.Threading.Tasks; // 包含 Task
-using MediaBrowser.Model.Entities; // 包含 MetadataFields
-using System; // 包含 Activator
-using PinYinSort.Utils; // 包含 PinyinHelper
+//PinyinSortProvider.cs
+// using MediaBrowser.Controller.Entities;
+// using MediaBrowser.Controller.Entities.Movies; // Movie
+// using MediaBrowser.Controller.Entities.TV; // Series, Episode
+// using MediaBrowser.Controller.Entities.Audio; // MusicAlbum, MusicArtist
+// using MediaBrowser.Controller.Providers; // ICustomMetadataProvider, ItemInfo, IDirectoryService
+// using MediaBrowser.Controller.Library; // 包含 ItemUpdateType
+// using MediaBrowser.Model.Configuration; // 包含 LibraryOptions
+// using System.Threading; // 包含 CancellationToken
+// using System.Threading.Tasks; // 包含 Task
+// using MediaBrowser.Model.Entities; // 包含 MetadataFields
+// using System; // 包含 Activator
+// using PinYinSort.Utils; // 包含 PinyinHelper
 
-// PinyinCustomMetadataProvider.cs
 using MediaBrowser.Controller.Entities;
 using MediaBrowser.Controller.Entities.Movies;
 using MediaBrowser.Controller.Entities.TV;
