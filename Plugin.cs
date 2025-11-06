@@ -1,6 +1,7 @@
 // Plugin.cs
 using MediaBrowser.Common; // 引入你的提供者和任务命名空间
-using MediaBrowser.Common.Plugins; // IPlugin, BasePlugin
+//using MediaBrowser.Common.Plugins; // IPlugin, BasePlugin
+using MediaBrowser.Controller.Plugins; // BasePluginSimpleUI
 using MediaBrowser.Model.Drawing; // ImageFormat
 using MediaBrowser.Model.Plugins; // 
 using System;
