@@ -1,16 +1,14 @@
 // Plugin.cs
 using MediaBrowser.Common; // 引入你的提供者和任务命名空间
-//using MediaBrowser.Common.Plugins; // IPlugin, BasePlugin
+using MediaBrowser.Common.Plugins; // IPlugin, BasePlugin
 using MediaBrowser.Controller.Plugins; // BasePluginSimpleUI
 using MediaBrowser.Model.Drawing; // ImageFormat
 using MediaBrowser.Model.Plugins; // 
 using System;
 using System.IO;
 
-/// <summary>
-/// PinyinSorter 插件主类
-/// 使用 BasePluginSimpleUI 自动生成配置页面
-/// </summary>
+namespace PinYinSort;
+
 public class Plugin : BasePluginSimpleUI<PinYinSortConfig>, IHasThumbImage
 {
     public override Guid Id => new Guid("B250C7F4-4E2B-4E7C-8B9A-123456789ABC");
@@ -21,8 +19,7 @@ public class Plugin : BasePluginSimpleUI<PinYinSortConfig>, IHasThumbImage
     public static Plugin Instance { get; private set; } = null!;
 
     // 构造函数：BasePluginSimpleUI 要求传入 IApplicationHost
-    public Plugin(IApplicationHost applicationHost)
-        : base(applicationHost)
+    public Plugin(IApplicationHost applicationHost) : base(applicationHost)
     {
         Instance = this;
     }

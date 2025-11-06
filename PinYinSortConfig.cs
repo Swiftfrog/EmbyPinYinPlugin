@@ -4,9 +4,6 @@ using Emby.Web.GenericEdit;
 
 namespace PinYinSort;
 
-/// <summary>
-/// 插件配置选项类 —— 必须继承 EditableOptionsBase 才能被 Simple UI 自动识别
-/// </summary>
 public class PinYinSortConfig : EditableOptionsBase
 {
     public override string EditorTitle => "PinYinSort Settings";
