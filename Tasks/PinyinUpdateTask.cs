@@ -1,3 +1,4 @@
+// PinyinUpdateTask.cs
 using MediaBrowser.Model.Tasks;
 using MediaBrowser.Controller.Library;
 using MediaBrowser.Model.Entities;
@@ -14,7 +15,8 @@ using System.Linq;
 namespace PinYinSort.Tasks;
 
 /// <summary>
-/// 定义一个计划任务，用于批量更新媒体项的 SortName 和 OriginalTitle，以支持拼音排序和搜索。
+/// 批量处理媒体库的拼音排序与搜索标签。
+/// 仅当插件功能启用且任务开关开启时执行。
 /// </summary>
 public class PinyinUpdateTask : IScheduledTask
 {
@@ -45,6 +47,22 @@ public class PinyinUpdateTask : IScheduledTask
     {
         _logger.Info("[PinYinSort]: 开始执行拼音处理计划任务...");
 
+        var config = Plugin.Instance.Configuration;
+
+        // 🔑 检查是否应执行任务
+        bool pluginEnabled = config.EnablePinyinSort || config.EnablePinyinSearch;
+        if (!pluginEnabled)
+        {
+            _logger.Info("[PinYinSort]: 插件功能已关闭（排序和搜索均未启用），跳过计划任务。");
+            return;
+        }
+
+        if (!config.EnableScheduledTask)
+        {
+            _logger.Info("[PinYinSort]: 计划任务开关未启用，跳过执行。您可在插件设置中开启“启用计划任务”。");
+            return;
+        }
+
         var query = new InternalItemsQuery
         {
             IncludeItemTypes = new[] { "Movie", "Series", "Episode", "MusicAlbum", "MusicArtist", "Video", "Photo", "BoxSet" },
@@ -69,12 +87,10 @@ public class PinyinUpdateTask : IScheduledTask
 
             try
             {
-                // 在后台线程执行 CPU-bound 工作
-                bool updated = await Task.Run(() => ProcessItem(item), cancellationToken);
+                bool updated = await Task.Run(() => ProcessItem(item, config), cancellationToken);
 
                 if (updated)
                 {
-                    // 仅当字段真正被修改时才保存
                     item.UpdateToRepository(ItemUpdateType.MetadataEdit);
                     _logger.Debug($"[PinYinSort]: 已更新项目: {item.Name} (ID: {item.Id})");
                 }
@@ -96,17 +112,12 @@ public class PinyinUpdateTask : IScheduledTask
     }
 
     /// <summary>
-    /// 处理单个项目，仅在字段实际变化时才修改并返回 true。
+    /// 处理单个项目，根据配置决定是否更新字段。
     /// </summary>
-    private bool ProcessItem(BaseItem item)
+    private bool ProcessItem(BaseItem item, PinYinSortConfig config)
     {
         var nameToProcess = item.Name;
-        if (string.IsNullOrEmpty(nameToProcess))
-        {
-            return false;
-        }
-
-        if (!PinyinHelper.ContainsChinese(nameToProcess))
+        if (string.IsNullOrEmpty(nameToProcess) || !PinyinHelper.ContainsChinese(nameToProcess))
         {
             return false;
         }
@@ -117,28 +128,26 @@ public class PinyinUpdateTask : IScheduledTask
             return false;
         }
 
-        var pinyinInitialsUpper = pinyinInitials.ToUpper();
+        var pinyinUpper = pinyinInitials.ToUpper();
         bool itemUpdated = false;
 
-        // --- 检查并更新 SortName ---
-        string currentSortName = item.SortName ?? string.Empty;
-        if (!string.Equals(currentSortName, pinyinInitialsUpper, StringComparison.Ordinal))
+        // --- SortName 更新逻辑（与 Provider 一致）---
+        if (ShouldUpdateSortName(item, pinyinUpper, config))
         {
-            item.SetSortNameDirect(pinyinInitialsUpper);
+            item.SetSortNameDirect(pinyinUpper);
             itemUpdated = true;
-            _logger.Debug($"[PinYinSort]: 已设置 SortName 为 {pinyinInitialsUpper}: {item.Name} (ID: {item.Id})");
+            _logger.Debug($"[PinYinSort]: 已设置 SortName 为 {pinyinUpper}: {item.Name} (ID: {item.Id})");
         }
         else
         {
-            _logger.Debug($"[PinYinSort]: SortName 已经是 {pinyinInitialsUpper}，无需更新: {item.Name} (ID: {item.Id})");
+            _logger.Debug($"[PinYinSort]: SortName 无需更新: {item.Name} (ID: {item.Id})");
         }
 
-        // --- 检查并更新 LockedFields ---
-        var currentLockedFields = item.LockedFields ?? Array.Empty<MetadataFields>();
-        if (!currentLockedFields.Contains(MetadataFields.SortName))
+        // --- LockedFields 安全更新 ---
+        var currentLocked = item.LockedFields ?? Array.Empty<MetadataFields>();
+        if (!currentLocked.Contains(MetadataFields.SortName))
         {
-            var newLockedFields = currentLockedFields.Concat(new[] { MetadataFields.SortName }).ToArray();
-            item.LockedFields = newLockedFields;
+            item.LockedFields = currentLocked.Concat(new[] { MetadataFields.SortName }).ToArray();
             itemUpdated = true;
             _logger.Debug($"[PinYinSort]: 已锁定 SortName 字段: {item.Name} (ID: {item.Id})");
         }
@@ -147,23 +156,45 @@ public class PinyinUpdateTask : IScheduledTask
             _logger.Debug($"[PinYinSort]: SortName 字段已被锁定，无需重复锁定: {item.Name} (ID: {item.Id})");
         }
 
-        // --- 检查并更新 OriginalTitle ---
-        string currentOriginalTitle = item.OriginalTitle ?? string.Empty;
-        string expectedTag = $" #{pinyinInitialsUpper}";
-        if (!currentOriginalTitle.Contains(expectedTag))
+        // --- OriginalTitle（拼音搜索标签）---
+        if (config.EnablePinyinSearch)
         {
-            string newOriginalTitle = string.IsNullOrEmpty(currentOriginalTitle)
-                ? pinyinInitialsUpper
-                : $"{currentOriginalTitle}{expectedTag}";
-            item.OriginalTitle = newOriginalTitle;
-            itemUpdated = true;
-            _logger.Debug($"[PinYinSort]: 已更新 OriginalTitle 为 {newOriginalTitle}: {item.Name} (ID: {item.Id})");
-        }
-        else
-        {
-            _logger.Debug($"[PinYinSort]: OriginalTitle 已包含拼音标签 {expectedTag}，无需更新: {item.Name} (ID: {item.Id})");
+            string currentOT = item.OriginalTitle ?? string.Empty;
+            string tag = $" #{pinyinUpper}";
+            if (!currentOT.Contains(tag))
+            {
+                item.OriginalTitle = string.IsNullOrEmpty(currentOT) ? pinyinUpper : $"{currentOT}{tag}";
+                itemUpdated = true;
+                _logger.Debug($"[PinYinSort]: 已更新 OriginalTitle: {item.Name} (ID: {item.Id})");
+            }
+            else
+            {
+                _logger.Debug($"[PinYinSort]: OriginalTitle 已包含拼音标签，无需更新: {item.Name} (ID: {item.Id})");
+            }
         }
 
-        return itemUpdated; // ✅ 仅当至少一个字段被修改时返回 true
+        return itemUpdated;
+    }
+
+    // 🔁 复用与 Provider 一致的逻辑（建议提取到 PinyinProviderHelper）
+    private static bool ShouldUpdateSortName(BaseItem item, string expectedPinyin, PinYinSortConfig config)
+    {
+        var current = item.SortName;
+
+        if (!config.EnablePinyinSort)
+            return false;
+
+        if (item.LockedFields?.Contains(MetadataFields.SortName) == true)
+        {
+            return !string.Equals(current, expectedPinyin, StringComparison.Ordinal);
+        }
+
+        if (!string.IsNullOrEmpty(current) && PinyinHelper.ContainsChinese(current))
+            return true;
+
+        if (config.OnlyFillWhenEmpty && !string.IsNullOrEmpty(current))
+            return false;
+
+        return string.IsNullOrEmpty(current);
     }
 }
