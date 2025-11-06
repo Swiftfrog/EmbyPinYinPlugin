@@ -1,43 +1,58 @@
 // Plugin.cs
 using MediaBrowser.Common; // 引入你的提供者和任务命名空间
-using MediaBrowser.Common.Configuration; // IConfigurationManager
 using MediaBrowser.Common.Plugins; // IPlugin, BasePlugin
-using MediaBrowser.Model.Drawing; // 
-using MediaBrowser.Model.Plugins; // BasePluginConfiguration
-using MediaBrowser.Model.Serialization; // IJsonSerializer
-using System;// IApplicationHost 在 MediaBrowser.Common 命名空间下
+using MediaBrowser.Model.Drawing; // ImageFormat
+using MediaBrowser.Model.Plugins; // 
+using System;
 using System.IO;
 
-using PinYinSort.Providers;
-
-namespace PinYinSort;
-
-public class Plugin : BasePlugin<PluginConfiguration>, IPlugin, IHasThumbImage
+/// <summary>
+/// PinyinSorter 插件主类
+/// 使用 BasePluginSimpleUI 自动生成配置页面
+/// </summary>
+public class Plugin : BasePluginSimpleUI<PinYinSortConfig>, IHasThumbImage
 {
-    public Plugin(IApplicationPaths applicationPaths, IXmlSerializer xmlSerializer) : base(applicationPaths, xmlSerializer)
+    public override Guid Id => new Guid("B250C7F4-4E2B-4E7C-8B9A-123456789ABC");
+    public override string Name => "PinyinSorter";
+    public override string Description => "Adds pinyin initials to media items for sorting and searching.";
+        
+    // 静态实例，便于在 Provider 等类中访问配置
+    public static Plugin Instance { get; private set; } = null!;
+
+    // 构造函数：BasePluginSimpleUI 要求传入 IApplicationHost
+    public Plugin(IApplicationHost applicationHost)
+        : base(applicationHost)
     {
+        Instance = this;
     }
 
-    public override string Name => "PinyinSorter";
-
-    public override Guid Id => Guid.Parse("B250C7F4-4E2B-4E7C-8B9A-123456789ABC"); // 请替换成你生成的全新 GUID
-
-    public override string Description => "Adds pinyin initials to media items for sorting and searching.";
-    
-    // 添加这个 ThumbImage 属性
+    // 实现 IHasThumbImage
     public Stream GetThumbImage()
     {
         var assembly = GetType().Assembly;
-        string resourceName = "PinYinSort.PinYinSortLogo.webp";
-        return assembly.GetManifestResourceStream(resourceName);
+        return assembly.GetManifestResourceStream("PinYinSort.PinYinSortLogo.webp");
     }
-    public ImageFormat ThumbImageFormat => ImageFormat.Webp;
-    
-    
-}
 
-public class PluginConfiguration : BasePluginConfiguration
-{
-    // 可以在这里添加插件配置选项，例如是否处理 OriginalTitle 等
-    // public bool ProcessOriginalTitle { get; set; } = false;
+    public ImageFormat ThumbImageFormat => ImageFormat.Webp;
+
+    /// <summary>
+    /// 当用户在 UI 中保存配置后触发
+    /// 可用于重新加载逻辑、通知服务等
+    /// </summary>
+    protected override void OnOptionsSaved(PinYinSortConfig options)
+    {
+        // 例如：记录日志、触发缓存刷新等
+        // 注意：此处 options 已保存到磁盘
+        base.OnOptionsSaved(options);
+    }
+
+    // /// <summary>
+    // /// （可选）在保存前验证或取消保存
+    // /// 返回 false 可阻止保存
+    // /// </summary>
+    // protected override bool OnOptionsSaving(PinYinSortConfig options)
+    // {
+    //     // 例如：验证字段合法性
+    //     return base.OnOptionsSaving(options);
+    // }
 }
