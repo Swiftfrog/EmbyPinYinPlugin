@@ -9,8 +9,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System;
-using PinYinSort.Utils;
 using System.Linq;
+
+using PinYinSort.Utils;
 
 namespace PinYinSort.Tasks;
 
@@ -132,7 +133,7 @@ public class PinyinUpdateTask : IScheduledTask
         bool itemUpdated = false;
 
         // --- SortName 更新逻辑（与 Provider 一致）---
-        if (ShouldUpdateSortName(item, pinyinUpper, config))
+        if (PinyinProviderHelper.ShouldUpdateSortName(item, pinyinUpper, config))
         {
             item.SetSortNameDirect(pinyinUpper);
             itemUpdated = true;
@@ -174,27 +175,5 @@ public class PinyinUpdateTask : IScheduledTask
         }
 
         return itemUpdated;
-    }
-
-    // 🔁 复用与 Provider 一致的逻辑（建议提取到 PinyinProviderHelper）
-    private static bool ShouldUpdateSortName(BaseItem item, string expectedPinyin, PinYinSortConfig config)
-    {
-        var current = item.SortName;
-
-        if (!config.EnablePinyinSort)
-            return false;
-
-        if (item.LockedFields?.Contains(MetadataFields.SortName) == true)
-        {
-            return !string.Equals(current, expectedPinyin, StringComparison.Ordinal);
-        }
-
-        if (!string.IsNullOrEmpty(current) && PinyinHelper.ContainsChinese(current))
-            return true;
-
-        if (config.OnlyFillWhenEmpty && !string.IsNullOrEmpty(current))
-            return false;
-
-        return string.IsNullOrEmpty(current);
     }
 }

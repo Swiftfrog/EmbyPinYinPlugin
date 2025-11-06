@@ -18,43 +18,43 @@ namespace PinYinSort.Providers;
 /// <summary>
 /// 通用辅助方法
 /// </summary>
-public static class PinyinProviderHelper
-{
-    public static bool ShouldUpdateSortName(BaseItem item, string expectedPinyin, PinYinSortConfig config)
-    {
-        var current = item.SortName;
-    
-        // 1. 如果禁用排序功能，不更新
-        if (!config.EnablePinyinSort)
-            return false;
-    
-        // 2. 如果字段被锁定 → 插件全权负责（必须校正）
-        if (item.LockedFields?.Contains(MetadataFields.SortName) == true)
-        {
-            return !string.Equals(current, expectedPinyin, StringComparison.Ordinal);
-        }
-    
-        // 3. 如果当前 SortName 包含中文 → 无论如何都应更新（核心功能）
-        if (!string.IsNullOrEmpty(current) && PinyinHelper.ContainsChinese(current))
-            return true;
-    
-        // 4. 如果开启“仅当为空时填充”，且当前非空（且不含中文）→ 跳过
-        if (config.OnlyFillWhenEmpty && !string.IsNullOrEmpty(current))
-            return false;
-    
-        // 5. 其他情况：为空 或 未开启保守模式且不含中文 → 允许更新
-        return string.IsNullOrEmpty(current);
-    }
-
-    public static void SafeAddLockedField(BaseItem item, MetadataFields field)
-    {
-        var current = item.LockedFields ?? System.Array.Empty<MetadataFields>();
-        if (!current.Contains(field))
-        {
-            item.LockedFields = current.Concat(new[] { field }).ToArray();
-        }
-    }
-}
+// public static class PinyinProviderHelper
+// {
+//     public static bool ShouldUpdateSortName(BaseItem item, string expectedPinyin, PinYinSortConfig config)
+//     {
+//         var current = item.SortName;
+//     
+//         // 1. 如果禁用排序功能，不更新
+//         if (!config.EnablePinyinSort)
+//             return false;
+//     
+//         // 2. 如果字段被锁定 → 插件全权负责（必须校正）
+//         if (item.LockedFields?.Contains(MetadataFields.SortName) == true)
+//         {
+//             return !string.Equals(current, expectedPinyin, StringComparison.Ordinal);
+//         }
+//     
+//         // 3. 如果当前 SortName 包含中文 → 无论如何都应更新（核心功能）
+//         if (!string.IsNullOrEmpty(current) && PinyinHelper.ContainsChinese(current))
+//             return true;
+//     
+//         // 4. 如果开启“仅当为空时填充”，且当前非空（且不含中文）→ 跳过
+//         if (config.OnlyFillWhenEmpty && !string.IsNullOrEmpty(current))
+//             return false;
+//     
+//         // 5. 其他情况：为空 或 未开启保守模式且不含中文 → 允许更新
+//         return string.IsNullOrEmpty(current);
+//     }
+// 
+//     public static void SafeAddLockedField(BaseItem item, MetadataFields field)
+//     {
+//         var current = item.LockedFields ?? System.Array.Empty<MetadataFields>();
+//         if (!current.Contains(field))
+//         {
+//             item.LockedFields = current.Concat(new[] { field }).ToArray();
+//         }
+//     }
+// }
 
 // =============== Movie Provider ===============
 public class PinYinSortProviderMovie : ICustomMetadataProvider<Movie>, IHasOrder
