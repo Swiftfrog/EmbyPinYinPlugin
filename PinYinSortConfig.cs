@@ -1,6 +1,7 @@
 // PinYinSortConfig.cs
 using MediaBrowser.Model.Plugins;
 using Emby.Web.GenericEdit;
+using System.ComponentModel;
 
 namespace PinYinSort;
 
