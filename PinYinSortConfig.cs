@@ -14,12 +14,8 @@ public class PinYinSortConfig : EditableOptionsBase
     public bool ProcessOriginalTitle { get; set; } = true;
 
     /// <summary>
-    /// 是否启用详细日志（用于调试）
-    /// </summary>
-    public bool EnableDebugLogging { get; set; } = false;
-
-    /// <summary>
     /// 是否仅在无排序名称时生成拼音首字母（避免覆盖用户自定义排序）
     /// </summary>
     public bool OnlyFillWhenEmpty { get; set; } = true;
+
 }
