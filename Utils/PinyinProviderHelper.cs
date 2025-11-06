@@ -4,7 +4,7 @@ using MediaBrowser.Model.Entities;
 using PinYinSort.Utils;
 using System;
 
-namespace PinYinSort.Providers;
+namespace PinYinSort.Utils;
 
 /// <summary>
 /// 提供 PinYinSort 插件中元数据处理的通用辅助方法。
