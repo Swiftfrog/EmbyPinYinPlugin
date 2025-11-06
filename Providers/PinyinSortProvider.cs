@@ -22,7 +22,8 @@ using MediaBrowser.Model.Configuration;
 using MediaBrowser.Model.Entities;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Linq;
+//using System.Linq;
+using System;
 using PinYinSort.Utils;
 
 namespace PinYinSort.Providers;
