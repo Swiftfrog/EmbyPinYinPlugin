@@ -7,15 +7,20 @@ namespace PinYinSort;
 public class PinYinSortConfig : EditableOptionsBase
 {
     public override string EditorTitle => "PinYinSort Settings";
- 
-    /// <summary>
-    /// 是否处理 OriginalTitle 字段（默认 true）
-    /// </summary>
-    public bool ProcessOriginalTitle { get; set; } = true;
 
     /// <summary>
-    /// 是否仅在无排序名称时生成拼音首字母（避免覆盖用户自定义排序）
+    /// 是否启用拼音排序（设置 SortName）
+    /// </summary>
+    public bool EnablePinyinSort { get; set; } = true;
+
+    /// <summary>
+    /// 是否启用拼音搜索（在 OriginalTitle 末尾添加 #拼音）
+    /// </summary>
+    public bool EnablePinyinSearch { get; set; } = true;
+
+    /// <summary>
+    /// 仅在 SortName 为空时填充拼音（避免覆盖用户自定义排序）
     /// </summary>
     public bool OnlyFillWhenEmpty { get; set; } = true;
-
+    
 }
