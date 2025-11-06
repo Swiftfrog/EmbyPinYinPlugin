@@ -1,3 +1,4 @@
+//
 using MediaBrowser.Controller.Entities;
 using MediaBrowser.Controller.Entities.Movies; // Movie
 using MediaBrowser.Controller.Entities.TV; // Series, Episode
@@ -16,7 +17,7 @@ namespace PinYinSort.Providers;
 /// <summary>
 /// 为电影元数据提供拼音首字母排序功能。
 /// </summary>
-public class PinyinCustomMetadataProviderMovie : ICustomMetadataProvider<Movie>, IHasOrder
+public class PinYinSortProviderMovie : ICustomMetadataProvider<Movie>, IHasOrder
 {
     public string Name => "Pinyin Custom Sorter Movie";
     public int Order => 0;
@@ -63,7 +64,7 @@ public class PinyinCustomMetadataProviderMovie : ICustomMetadataProvider<Movie>,
 /// <summary>
 /// 为电视剧元数据提供拼音首字母排序功能。
 /// </summary>
-public class PinyinCustomMetadataProviderSeries : ICustomMetadataProvider<Series>, IHasOrder
+public class PinYinSortProviderSeries : ICustomMetadataProvider<Series>, IHasOrder
 {
     public string Name => "Pinyin Custom Sorter Series";
     public int Order => 0;
@@ -108,7 +109,7 @@ public class PinyinCustomMetadataProviderSeries : ICustomMetadataProvider<Series
 /// <summary>
 /// 为剧集元数据提供拼音首字母排序功能。
 /// </summary>
-public class PinyinCustomMetadataProviderEpisode : ICustomMetadataProvider<Episode>, IHasOrder
+public class PinYinSortProviderEpisode : ICustomMetadataProvider<Episode>, IHasOrder
 {
     public string Name => "Pinyin Custom Sorter Episode";
     public int Order => 0;
@@ -146,7 +147,7 @@ public class PinyinCustomMetadataProviderEpisode : ICustomMetadataProvider<Episo
 /// <summary>
 /// 为合集（BoxSet）元数据提供拼音首字母排序功能。
 /// </summary>
-public class PinyinCustomMetadataProviderBoxSet : ICustomMetadataProvider<BoxSet>, IHasOrder
+public class PinYinSortProviderBoxSet : ICustomMetadataProvider<BoxSet>, IHasOrder
 {
     public string Name => "Pinyin Custom Sorter BoxSet";
     public int Order => 0;
