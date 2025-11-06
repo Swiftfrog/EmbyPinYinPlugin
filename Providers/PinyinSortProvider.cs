@@ -33,34 +33,60 @@ namespace PinYinSort.Providers;
 /// </summary>
 public static class PinyinProviderHelper
 {
+    // public static bool ShouldUpdateSortName(BaseItem item, string expectedPinyin, PinYinSortConfig config)
+    // {
+    //     var current = item.SortName;
+// 
+    //     // 1. 如果禁用排序功能，不更新
+    //     if (!config.EnablePinyinSort)
+    //         return false;
+// 
+    //     // 2. 保守模式：仅当为空时填充
+    //     if (config.OnlyFillWhenEmpty && PinyinHelper.ContainsChinese(current))
+    //         return false;
+// 
+    //     // 3. 字段被锁定 → 插件全权负责
+    //     if (item.LockedFields?.Contains(MetadataFields.SortName) == true)
+    //     {
+    //         return !string.Equals(current, expectedPinyin, StringComparison.Ordinal);
+    //     }
+// 
+    //     // 4. 当前为空 → 需要填充
+    //     if (string.IsNullOrEmpty(current))
+    //         return true;
+// 
+    //     // 5. 当前含中文 → 不适合排序 → 应更新
+    //     if (PinyinHelper.ContainsChinese(current))
+    //         return true;
+// 
+    //     // 6. 其他情况（如英文、符号）→ 用户自定义 → 不覆盖
+    //     return false;
+    // }
+
     public static bool ShouldUpdateSortName(BaseItem item, string expectedPinyin, PinYinSortConfig config)
     {
         var current = item.SortName;
-
+    
         // 1. 如果禁用排序功能，不更新
         if (!config.EnablePinyinSort)
             return false;
-
-        // 2. 保守模式：仅当为空时填充
-        if (config.OnlyFillWhenEmpty && !string.IsNullOrEmpty(current))
-            return false;
-
-        // 3. 字段被锁定 → 插件全权负责
+    
+        // 2. 如果字段被锁定 → 插件全权负责（必须校正）
         if (item.LockedFields?.Contains(MetadataFields.SortName) == true)
         {
             return !string.Equals(current, expectedPinyin, StringComparison.Ordinal);
         }
-
-        // 4. 当前为空 → 需要填充
-        if (string.IsNullOrEmpty(current))
+    
+        // 3. 如果当前 SortName 包含中文 → 无论如何都应更新（核心功能）
+        if (!string.IsNullOrEmpty(current) && PinyinHelper.ContainsChinese(current))
             return true;
-
-        // 5. 当前含中文 → 不适合排序 → 应更新
-        if (PinyinHelper.ContainsChinese(current))
-            return true;
-
-        // 6. 其他情况（如英文、符号）→ 用户自定义 → 不覆盖
-        return false;
+    
+        // 4. 如果开启“仅当为空时填充”，且当前非空（且不含中文）→ 跳过
+        if (config.OnlyFillWhenEmpty && !string.IsNullOrEmpty(current))
+            return false;
+    
+        // 5. 其他情况：为空 或 未开启保守模式且不含中文 → 允许更新
+        return string.IsNullOrEmpty(current);
     }
 
     public static void SafeAddLockedField(BaseItem item, MetadataFields field)
