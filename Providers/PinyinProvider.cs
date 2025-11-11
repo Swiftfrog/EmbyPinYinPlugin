@@ -1,4 +1,4 @@
-// PinyinSortProvider.cs
+// PinyinProvider.cs
 using MediaBrowser.Controller.Entities;
 using MediaBrowser.Controller.Entities.Movies;
 using MediaBrowser.Controller.Entities.TV;
@@ -14,17 +14,17 @@ using System.Linq;
 using System;
 using PinYinSort.Utils;
 
-namespace PinYinSort.Providers;
+namespace PinyinSeek.Providers;
 
 // =============== 基础 Provider 抽象（可选，但避免重复）==============
 // 为简化，我们直接在每个类中注入 ILogger（Emby 不支持 Provider 基类依赖注入）
 
 // =============== Movie Provider ===============
-public class PinYinSortProviderMovie : ICustomMetadataProvider<Movie>, IHasOrder
+public class PinyinProviderMovie : ICustomMetadataProvider<Movie>, IHasOrder
 {
     private readonly ILogger _logger;
 
-    public PinYinSortProviderMovie(ILogger logger)
+    public PinyinProviderMovie(ILogger logger)
     {
         _logger = logger;
     }
@@ -44,20 +44,20 @@ public class PinYinSortProviderMovie : ICustomMetadataProvider<Movie>, IHasOrder
 
         if (string.IsNullOrEmpty(nameToProcess))
         {
-            _logger.Debug("[PinYinSort] Movie: 名称为空，跳过处理。Item ID: {0}", item.Id);
+            _logger.Debug("[PinyinSeek] Movie: 名称为空，跳过处理。Item ID: {0}", item.Id);
             return ItemUpdateType.None;
         }
 
         if (!PinyinHelper.ContainsChinese(nameToProcess))
         {
-            _logger.Debug("[PinYinSort] Movie: 不含中文，跳过处理。名称: {0}, ID: {1}", nameToProcess, item.Id);
+            _logger.Debug("[PinyinSeek] Movie: 不含中文，跳过处理。名称: {0}, ID: {1}", nameToProcess, item.Id);
             return ItemUpdateType.None;
         }
 
         string pinyinInitials = await Task.Run(() => PinyinHelper.GetPinyinInitials(nameToProcess), cancellationToken);
         if (string.IsNullOrEmpty(pinyinInitials))
         {
-            _logger.Debug("[PinYinSort] Movie: 拼音计算失败，跳过。名称: {0}, ID: {1}", nameToProcess, item.Id);
+            _logger.Debug("[PinyinSeek] Movie: 拼音计算失败，跳过。名称: {0}, ID: {1}", nameToProcess, item.Id);
             return ItemUpdateType.None;
         }
 
@@ -69,11 +69,11 @@ public class PinYinSortProviderMovie : ICustomMetadataProvider<Movie>, IHasOrder
             item.SetSortNameDirect(pinyinUpper);
             PinyinProviderHelper.SafeAddLockedField(item, MetadataFields.SortName);
             updated = true;
-            _logger.Debug("[PinYinSort] Movie: 已更新 SortName 为 {0}。名称: {1}, ID: {2}", pinyinUpper, item.Name, item.Id);
+            _logger.Debug("[PinyinSeek] Movie: 已更新 SortName 为 {0}。名称: {1}, ID: {2}", pinyinUpper, item.Name, item.Id);
         }
         else
         {
-            _logger.Debug("[PinYinSort] Movie: SortName 无需更新。当前: {0}, 期望: {1}, 名称: {2}, ID: {3}",
+            _logger.Debug("[PinyinSeek] Movie: SortName 无需更新。当前: {0}, 期望: {1}, 名称: {2}, ID: {3}",
                 item.SortName, pinyinUpper, item.Name, item.Id);
         }
 
@@ -85,11 +85,11 @@ public class PinYinSortProviderMovie : ICustomMetadataProvider<Movie>, IHasOrder
             {
                 item.OriginalTitle = string.IsNullOrEmpty(currentOT) ? pinyinUpper : $"{currentOT}{tag}";
                 updated = true;
-                _logger.Debug("[PinYinSort] Movie: 已更新 OriginalTitle。新值: {0}, ID: {1}", item.OriginalTitle, item.Id);
+                _logger.Debug("[PinyinSeek] Movie: 已更新 OriginalTitle。新值: {0}, ID: {1}", item.OriginalTitle, item.Id);
             }
             else
             {
-                _logger.Debug("[PinYinSort] Movie: OriginalTitle 已包含拼音标签，跳过。ID: {0}", item.Id);
+                _logger.Debug("[PinyinSeek] Movie: OriginalTitle 已包含拼音标签，跳过。ID: {0}", item.Id);
             }
         }
 
@@ -98,11 +98,11 @@ public class PinYinSortProviderMovie : ICustomMetadataProvider<Movie>, IHasOrder
 }
 
 // =============== Series Provider ===============
-public class PinYinSortProviderSeries : ICustomMetadataProvider<Series>, IHasOrder
+public class PinyinProviderSeries : ICustomMetadataProvider<Series>, IHasOrder
 {
     private readonly ILogger _logger;
 
-    public PinYinSortProviderSeries(ILogger logger)
+    public PinyinProviderSeries(ILogger logger)
     {
         _logger = logger;
     }
@@ -122,20 +122,20 @@ public class PinYinSortProviderSeries : ICustomMetadataProvider<Series>, IHasOrd
 
         if (string.IsNullOrEmpty(nameToProcess))
         {
-            _logger.Debug("[PinYinSort] Series: 名称为空，跳过处理。Item ID: {0}", item.Id);
+            _logger.Debug("[PinyinSeek] Series: 名称为空，跳过处理。Item ID: {0}", item.Id);
             return ItemUpdateType.None;
         }
 
         if (!PinyinHelper.ContainsChinese(nameToProcess))
         {
-            _logger.Debug("[PinYinSort] Series: 不含中文，跳过处理。名称: {0}, ID: {1}", nameToProcess, item.Id);
+            _logger.Debug("[PinyinSeek] Series: 不含中文，跳过处理。名称: {0}, ID: {1}", nameToProcess, item.Id);
             return ItemUpdateType.None;
         }
 
         string pinyinInitials = await Task.Run(() => PinyinHelper.GetPinyinInitials(nameToProcess), cancellationToken);
         if (string.IsNullOrEmpty(pinyinInitials))
         {
-            _logger.Debug("[PinYinSort] Series: 拼音计算失败，跳过。名称: {0}, ID: {1}", nameToProcess, item.Id);
+            _logger.Debug("[PinyinSeek] Series: 拼音计算失败，跳过。名称: {0}, ID: {1}", nameToProcess, item.Id);
             return ItemUpdateType.None;
         }
 
@@ -147,11 +147,11 @@ public class PinYinSortProviderSeries : ICustomMetadataProvider<Series>, IHasOrd
             item.SetSortNameDirect(pinyinUpper);
             PinyinProviderHelper.SafeAddLockedField(item, MetadataFields.SortName);
             updated = true;
-            _logger.Debug("[PinYinSort] Series: 已更新 SortName 为 {0}。名称: {1}, ID: {2}", pinyinUpper, item.Name, item.Id);
+            _logger.Debug("[PinyinSeek] Series: 已更新 SortName 为 {0}。名称: {1}, ID: {2}", pinyinUpper, item.Name, item.Id);
         }
         else
         {
-            _logger.Debug("[PinYinSort] Series: SortName 无需更新。当前: {0}, 期望: {1}, 名称: {2}, ID: {3}",
+            _logger.Debug("[PinyinSeek] Series: SortName 无需更新。当前: {0}, 期望: {1}, 名称: {2}, ID: {3}",
                 item.SortName, pinyinUpper, item.Name, item.Id);
         }
 
@@ -163,11 +163,11 @@ public class PinYinSortProviderSeries : ICustomMetadataProvider<Series>, IHasOrd
             {
                 item.OriginalTitle = string.IsNullOrEmpty(currentOT) ? pinyinUpper : $"{currentOT}{tag}";
                 updated = true;
-                _logger.Debug("[PinYinSort] Series: 已更新 OriginalTitle。新值: {0}, ID: {1}", item.OriginalTitle, item.Id);
+                _logger.Debug("[PinyinSeek] Series: 已更新 OriginalTitle。新值: {0}, ID: {1}", item.OriginalTitle, item.Id);
             }
             else
             {
-                _logger.Debug("[PinYinSort] Series: OriginalTitle 已包含拼音标签，跳过。ID: {0}", item.Id);
+                _logger.Debug("[PinyinSeek] Series: OriginalTitle 已包含拼音标签，跳过。ID: {0}", item.Id);
             }
         }
 
@@ -176,11 +176,11 @@ public class PinYinSortProviderSeries : ICustomMetadataProvider<Series>, IHasOrd
 }
 
 // =============== BoxSet Provider ===============
-public class PinYinSortProviderBoxSet : ICustomMetadataProvider<BoxSet>, IHasOrder
+public class PinyinProviderBoxSet : ICustomMetadataProvider<BoxSet>, IHasOrder
 {
     private readonly ILogger _logger;
 
-    public PinYinSortProviderBoxSet(ILogger logger)
+    public PinyinProviderBoxSet(ILogger logger)
     {
         _logger = logger;
     }
@@ -200,20 +200,20 @@ public class PinYinSortProviderBoxSet : ICustomMetadataProvider<BoxSet>, IHasOrd
 
         if (string.IsNullOrEmpty(nameToProcess))
         {
-            _logger.Debug("[PinYinSort] BoxSet: 名称为空，跳过处理。Item ID: {0}", item.Id);
+            _logger.Debug("[PinyinSeek] BoxSet: 名称为空，跳过处理。Item ID: {0}", item.Id);
             return ItemUpdateType.None;
         }
 
         if (!PinyinHelper.ContainsChinese(nameToProcess))
         {
-            _logger.Debug("[PinYinSort] BoxSet: 不含中文，跳过处理。名称: {0}, ID: {1}", nameToProcess, item.Id);
+            _logger.Debug("[PinyinSeek] BoxSet: 不含中文，跳过处理。名称: {0}, ID: {1}", nameToProcess, item.Id);
             return ItemUpdateType.None;
         }
 
         string pinyinInitials = await Task.Run(() => PinyinHelper.GetPinyinInitials(nameToProcess), cancellationToken);
         if (string.IsNullOrEmpty(pinyinInitials))
         {
-            _logger.Debug("[PinYinSort] BoxSet: 拼音计算失败，跳过。名称: {0}, ID: {1}", nameToProcess, item.Id);
+            _logger.Debug("[PinyinSeek] BoxSet: 拼音计算失败，跳过。名称: {0}, ID: {1}", nameToProcess, item.Id);
             return ItemUpdateType.None;
         }
 
@@ -225,11 +225,11 @@ public class PinYinSortProviderBoxSet : ICustomMetadataProvider<BoxSet>, IHasOrd
             item.SetSortNameDirect(pinyinUpper);
             PinyinProviderHelper.SafeAddLockedField(item, MetadataFields.SortName);
             updated = true;
-            _logger.Debug("[PinYinSort] BoxSet: 已更新 SortName 为 {0}。名称: {1}, ID: {2}", pinyinUpper, item.Name, item.Id);
+            _logger.Debug("[PinyinSeek] BoxSet: 已更新 SortName 为 {0}。名称: {1}, ID: {2}", pinyinUpper, item.Name, item.Id);
         }
         else
         {
-            _logger.Debug("[PinYinSort] BoxSet: SortName 无需更新。当前: {0}, 期望: {1}, 名称: {2}, ID: {3}",
+            _logger.Debug("[PinyinSeek] BoxSet: SortName 无需更新。当前: {0}, 期望: {1}, 名称: {2}, ID: {3}",
                 item.SortName, pinyinUpper, item.Name, item.Id);
         }
 
@@ -241,11 +241,11 @@ public class PinYinSortProviderBoxSet : ICustomMetadataProvider<BoxSet>, IHasOrd
             {
                 item.OriginalTitle = string.IsNullOrEmpty(currentOT) ? pinyinUpper : $"{currentOT}{tag}";
                 updated = true;
-                _logger.Debug("[PinYinSort] BoxSet: 已更新 OriginalTitle。新值: {0}, ID: {1}", item.OriginalTitle, item.Id);
+                _logger.Debug("[PinyinSeek] BoxSet: 已更新 OriginalTitle。新值: {0}, ID: {1}", item.OriginalTitle, item.Id);
             }
             else
             {
-                _logger.Debug("[PinYinSort] BoxSet: OriginalTitle 已包含拼音标签，跳过。ID: {0}", item.Id);
+                _logger.Debug("[PinyinSeek] BoxSet: OriginalTitle 已包含拼音标签，跳过。ID: {0}", item.Id);
             }
         }
 
