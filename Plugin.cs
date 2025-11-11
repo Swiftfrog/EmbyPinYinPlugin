@@ -28,10 +28,10 @@ public class Plugin : BasePluginSimpleUI<PinyinSeekConfig>, IHasThumbImage
     public Stream GetThumbImage()
     {
         var assembly = GetType().Assembly;
-        return assembly.GetManifestResourceStream("PinYinSort.PinYinSortLogo.webp");
+        return assembly.GetManifestResourceStream("PinyinSeek.PinyinSeekLogo.png");
     }
 
-    public ImageFormat ThumbImageFormat => ImageFormat.Webp;
+    public ImageFormat ThumbImageFormat => ImageFormat.Png;
 
     /// <summary>
     /// 当用户在 UI 中保存配置后触发
