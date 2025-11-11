@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework> <!-- 保持 net8.0 -->
+    <TargetFramework>net8.0</TargetFramework>
     <AssemblyVersion>25.11.11</AssemblyVersion>
     <FileVersion>25.11.11</FileVersion>
     <CopyLocalLockFileAssemblies>True</CopyLocalLockFileAssemblies>
@@ -23,7 +23,7 @@
   </ItemGroup>
   
   <ItemGroup>
-    <EmbeddedResource Include="PinYinSortLogo.webp" />
+    <EmbeddedResource Include="PinyinSeekLogo.png" />
   </ItemGroup>
 
   <Target Name="ILRepack" AfterTargets="Build" Condition="'$(Configuration)' == 'Release'">

@@ -17,9 +17,6 @@ using PinyinSeek.Utils;
 
 namespace PinyinSeek.Providers;
 
-// =============== 基础 Provider 抽象（可选，但避免重复）==============
-// 为简化，我们直接在每个类中注入 ILogger（Emby 不支持 Provider 基类依赖注入）
-
 // =============== Movie Provider ===============
 public class PinyinProviderMovie : ICustomMetadataProvider<Movie>, IHasOrder
 {

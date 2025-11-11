@@ -1,4 +1,4 @@
-// PinyinProviderHelper.cs
+// Utils/PinyinProviderHelper.cs
 using MediaBrowser.Controller.Entities;
 using MediaBrowser.Model.Entities;
 using System;
@@ -8,15 +8,11 @@ using PinyinSeek.Utils;
 
 namespace PinyinSeek.Utils;
 
-/// <summary>
 /// 提供 PinYinSort 插件中元数据处理的通用辅助方法。
 /// 可被 ICustomMetadataProvider 和 IScheduledTask 共享使用。
-/// </summary>
 public static class PinyinProviderHelper
 {
-    /// <summary>
     /// 判断是否应更新项目的 SortName 字段。
-    /// </summary>
     public static bool ShouldUpdateSortName(BaseItem item, string expectedPinyin, PinyinSeekConfig config)
     {
         var current = item.SortName;
@@ -43,9 +39,7 @@ public static class PinyinProviderHelper
         return string.IsNullOrEmpty(current);
     }
 
-    /// <summary>
     /// 安全地将字段添加到 LockedFields，避免覆盖已有锁定项。
-    /// </summary>
     public static void SafeAddLockedField(BaseItem item, MetadataFields field)
     {
         var current = item.LockedFields ?? System.Array.Empty<MetadataFields>();

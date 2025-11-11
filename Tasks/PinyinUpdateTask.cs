@@ -15,10 +15,8 @@ using PinyinSeek.Utils;
 
 namespace PinyinSeek.Tasks;
 
-/// <summary>
 /// 批量处理媒体库的拼音排序与搜索标签。
 /// 仅当插件功能启用且任务开关开启时执行。
-/// </summary>
 public class PinyinUpdateTask : IScheduledTask
 {
     private readonly ILibraryManager _libraryManager;
@@ -112,9 +110,7 @@ public class PinyinUpdateTask : IScheduledTask
         _logger.Info($"[PinyinSeek]: 拼音处理计划任务执行完毕。共处理 {processedCount} 个项目。");
     }
 
-    /// <summary>
     /// 处理单个项目，根据配置决定是否更新字段。
-    /// </summary>
     private bool ProcessItem(BaseItem item, PinyinSeekConfig config)
     {
         var nameToProcess = item.Name;

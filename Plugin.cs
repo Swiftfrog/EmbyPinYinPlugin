@@ -1,9 +1,9 @@
 // Plugin.cs
-using MediaBrowser.Common; // 引入你的提供者和任务命名空间
-using MediaBrowser.Common.Plugins; // IPlugin, BasePlugin
-using MediaBrowser.Controller.Plugins; // BasePluginSimpleUI
-using MediaBrowser.Model.Drawing; // ImageFormat
-using MediaBrowser.Model.Plugins; // 
+using MediaBrowser.Common;
+using MediaBrowser.Common.Plugins;
+using MediaBrowser.Controller.Plugins;
+using MediaBrowser.Model.Drawing;
+using MediaBrowser.Model.Plugins;
 using System;
 using System.IO;
 
@@ -11,9 +11,9 @@ namespace PinyinSeek;
 
 public class Plugin : BasePluginSimpleUI<PinyinSeekConfig>, IHasThumbImage
 {
-    public override Guid Id => new Guid("B250C7F4-4E2B-4E7C-8B9A-123456789ABC");
     public override string Name => "PinyinSeek";
     public override string Description => "Adds pinyin initials to media items for sorting and searching.";
+    public override Guid Id => new Guid("B250C7F4-4E2B-4E7C-8B9A-123456789ABC");
         
     public static Plugin Instance { get; private set; } = null!;
 
@@ -33,10 +33,8 @@ public class Plugin : BasePluginSimpleUI<PinyinSeekConfig>, IHasThumbImage
 
     public ImageFormat ThumbImageFormat => ImageFormat.Png;
 
-    /// <summary>
     /// 当用户在 UI 中保存配置后触发
     /// 可用于重新加载逻辑、通知服务等
-    /// </summary>
     protected override void OnOptionsSaved(PinyinSeekConfig options)
     {
         // 例如：记录日志、触发缓存刷新等
@@ -44,10 +42,8 @@ public class Plugin : BasePluginSimpleUI<PinyinSeekConfig>, IHasThumbImage
         base.OnOptionsSaved(options);
     }
 
-    // /// <summary>
     // /// （可选）在保存前验证或取消保存
     // /// 返回 false 可阻止保存
-    // /// </summary>
     // protected override bool OnOptionsSaving(PinyinSeekConfig options)
     // {
     //     // 例如：验证字段合法性
