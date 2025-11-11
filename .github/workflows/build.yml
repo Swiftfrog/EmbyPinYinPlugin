@@ -11,6 +11,10 @@ on:
 jobs:
   build:
     runs-on: windows-latest
+    
+    permissions:
+      contents: write         # 授予创建 Release 的权限
+      pull-requests: read     # 授予读取 PRs 以生成 Release Notes 的权限
 
     steps:
     - name: Checkout code
