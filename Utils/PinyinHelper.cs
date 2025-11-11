@@ -1,7 +1,7 @@
 // Utils/PinyinHelper.cs
 using TinyPinyin;
 
-namespace PinYinSort.Utils;
+namespace PinyinSeek.Utils;
 
 public static class PinyinHelper
 {
