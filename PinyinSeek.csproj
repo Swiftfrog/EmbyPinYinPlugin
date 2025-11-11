@@ -2,12 +2,12 @@
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework> <!-- 保持 net8.0 -->
-    <AssemblyVersion>25.11.04</AssemblyVersion>
-    <FileVersion>25.11.04</FileVersion>
+    <AssemblyVersion>25.11.11</AssemblyVersion>
+    <FileVersion>25.11.11</FileVersion>
     <CopyLocalLockFileAssemblies>True</CopyLocalLockFileAssemblies>
     <IncludeSourceRevisionInInformationalVersion>true</IncludeSourceRevisionInInformationalVersion>
-    <AssemblyName>PinYinSort</AssemblyName>
-    <RootNamespace>PinYinSort</RootNamespace>
+    <AssemblyName>PinyinSeek</AssemblyName>
+    <RootNamespace>PinyinSeek</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
