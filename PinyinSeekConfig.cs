@@ -3,11 +3,11 @@ using MediaBrowser.Model.Plugins;
 using Emby.Web.GenericEdit;
 using System.ComponentModel;
 
-namespace PinYinSort;
+namespace PinyinSeek;
 
-public class PinYinSortConfig : EditableOptionsBase
+public class PinyinSeekConfig : EditableOptionsBase
 {
-    public override string EditorTitle => "PinYinSort Settings";
+    public override string EditorTitle => "PinyinSeek Settings";
 
     /// <summary>
     /// 是否启用拼音排序（设置 SortName）
@@ -34,7 +34,7 @@ public class PinYinSortConfig : EditableOptionsBase
     /// 仅在 SortName 为空时填充拼音（避免覆盖用户自定义排序）
     /// </summary>
     [DisplayName("启用自定义排序")]
-    [Description("打开情况下，自定义排序不会被修订。自定义排序为英文或者数字，如果是中文，依旧会被拼音化。不理解，请关闭。")]
+    [Description("打开情况下，自定义排序不会被修订。如果自定义排序是中文，依旧会被拼音化。不理解，请关闭。")]
     public bool OnlyFillWhenEmpty { get; set; } = false;
     
 }
