@@ -12,7 +12,7 @@ namespace PinyinSeek;
 public class Plugin : BasePluginSimpleUI<PinyinSeekConfig>, IHasThumbImage
 {
     public override Guid Id => new Guid("B250C7F4-4E2B-4E7C-8B9A-123456789ABC");
-    public override string Name => "PinyinSort";
+    public override string Name => "PinyinSeek";
     public override string Description => "Adds pinyin initials to media items for sorting and searching.";
         
     public static Plugin Instance { get; private set; } = null!;
