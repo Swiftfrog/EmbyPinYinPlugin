@@ -28,6 +28,6 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: PinYinSort
-        path: bin/Release/net8.0/PinYinSort.dll
-#        if-no-files-found: error
-#        retention-days: 30
+        path: bin/Release/net8.0/PinyinSeek.dll
+         if-no-files-found: error
+         retention-days: 7
