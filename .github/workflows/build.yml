@@ -29,5 +29,5 @@ jobs:
       with:
         name: PinYinSort
         path: bin/Release/net8.0/PinyinSeek.dll
-         if-no-files-found: error
-         retention-days: 7
+        if-no-files-found: error
+        retention-days: 7
