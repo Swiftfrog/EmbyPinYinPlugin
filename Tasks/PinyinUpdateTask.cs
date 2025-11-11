@@ -11,9 +11,9 @@ using System.Collections.Generic;
 using System;
 using System.Linq;
 
-using PinYinSort.Utils;
+using PinyinSeek.Utils;
 
-namespace PinYinSort.Tasks;
+namespace PinyinSeek.Tasks;
 
 /// <summary>
 /// 批量处理媒体库的拼音排序与搜索标签。
@@ -30,10 +30,10 @@ public class PinyinUpdateTask : IScheduledTask
         _logger = logger;
     }
 
-    public string Name => "PinYinSort for Chinese";
+    public string Name => "PinyinSeek for Chinese";
     public string Key => "PinyinToolsScheduledTask";
     public string Description => "扫描媒体库，为中文标题的媒体生成拼音简拼用于排序和搜索。";
-    public string Category => "PinYinSort";
+    public string Category => "PinyinSeek";
 
     public IEnumerable<TaskTriggerInfo> GetDefaultTriggers()
     {
@@ -46,7 +46,7 @@ public class PinyinUpdateTask : IScheduledTask
 
     public async Task Execute(CancellationToken cancellationToken, IProgress<double> progress)
     {
-        _logger.Info("[PinYinSort]: 开始执行拼音处理计划任务...");
+        _logger.Info("[PinyinSeek]: 开始执行拼音处理计划任务...");
 
         var config = Plugin.Instance.Configuration;
 
@@ -54,13 +54,13 @@ public class PinyinUpdateTask : IScheduledTask
         bool pluginEnabled = config.EnablePinyinSort || config.EnablePinyinSearch;
         if (!pluginEnabled)
         {
-            _logger.Info("[PinYinSort]: 插件功能已关闭（排序和搜索均未启用），跳过计划任务。");
+            _logger.Info("[PinyinSeek]: 插件功能已关闭（排序和搜索均未启用），跳过计划任务。");
             return;
         }
 
         if (!config.EnableScheduledTask)
         {
-            _logger.Info("[PinYinSort]: 计划任务开关未启用，跳过执行。您可在插件设置中开启“启用计划任务”。");
+            _logger.Info("[PinyinSeek]: 计划任务开关未启用，跳过执行。您可在插件设置中开启“启用计划任务”。");
             return;
         }
 
@@ -73,11 +73,11 @@ public class PinyinUpdateTask : IScheduledTask
 
         var allItems = _libraryManager.GetItemList(query);
         var totalItems = allItems.Length;
-        _logger.Info($"[PinYinSort]: 查询到 {totalItems} 个媒体项需要处理。");
+        _logger.Info($"[PinyinSeek]: 查询到 {totalItems} 个媒体项需要处理。");
 
         if (totalItems == 0)
         {
-            _logger.Info("[PinYinSort]: 没有找到需要处理的媒体项。任务结束。");
+            _logger.Info("[PinyinSeek]: 没有找到需要处理的媒体项。任务结束。");
             return;
         }
 
@@ -93,29 +93,29 @@ public class PinyinUpdateTask : IScheduledTask
                 if (updated)
                 {
                     item.UpdateToRepository(ItemUpdateType.MetadataEdit);
-                    _logger.Debug($"[PinYinSort]: 已更新项目: {item.Name} (ID: {item.Id})");
+                    _logger.Debug($"[PinyinSeek]: 已更新项目: {item.Name} (ID: {item.Id})");
                 }
                 else
                 {
-                    _logger.Debug($"[PinYinSort]: 项目无需更新: {item.Name} (ID: {item.Id})");
+                    _logger.Debug($"[PinyinSeek]: 项目无需更新: {item.Name} (ID: {item.Id})");
                 }
             }
             catch (Exception ex)
             {
-                _logger.Error($"[PinYinSort]: 处理项目时出错: {item.Name} (ID: {item.Id})", ex);
+                _logger.Error($"[PinyinSeek]: 处理项目时出错: {item.Name} (ID: {item.Id})", ex);
             }
 
             processedCount++;
             progress.Report((double)processedCount / totalItems * 100.0);
         }
 
-        _logger.Info($"[PinYinSort]: 拼音处理计划任务执行完毕。共处理 {processedCount} 个项目。");
+        _logger.Info($"[PinyinSeek]: 拼音处理计划任务执行完毕。共处理 {processedCount} 个项目。");
     }
 
     /// <summary>
     /// 处理单个项目，根据配置决定是否更新字段。
     /// </summary>
-    private bool ProcessItem(BaseItem item, PinYinSortConfig config)
+    private bool ProcessItem(BaseItem item, PinyinSeekConfig config)
     {
         var nameToProcess = item.Name;
         if (string.IsNullOrEmpty(nameToProcess) || !PinyinHelper.ContainsChinese(nameToProcess))
@@ -137,11 +137,11 @@ public class PinyinUpdateTask : IScheduledTask
         {
             item.SetSortNameDirect(pinyinUpper);
             itemUpdated = true;
-            _logger.Debug($"[PinYinSort]: 已设置 SortName 为 {pinyinUpper}: {item.Name} (ID: {item.Id})");
+            _logger.Debug($"[PinyinSeek]: 已设置 SortName 为 {pinyinUpper}: {item.Name} (ID: {item.Id})");
         }
         else
         {
-            _logger.Debug($"[PinYinSort]: SortName 无需更新: {item.Name} (ID: {item.Id})");
+            _logger.Debug($"[PinyinSeek]: SortName 无需更新: {item.Name} (ID: {item.Id})");
         }
 
         // --- LockedFields 安全更新 ---
@@ -150,11 +150,11 @@ public class PinyinUpdateTask : IScheduledTask
         {
             item.LockedFields = currentLocked.Concat(new[] { MetadataFields.SortName }).ToArray();
             itemUpdated = true;
-            _logger.Debug($"[PinYinSort]: 已锁定 SortName 字段: {item.Name} (ID: {item.Id})");
+            _logger.Debug($"[PinyinSeek]: 已锁定 SortName 字段: {item.Name} (ID: {item.Id})");
         }
         else
         {
-            _logger.Debug($"[PinYinSort]: SortName 字段已被锁定，无需重复锁定: {item.Name} (ID: {item.Id})");
+            _logger.Debug($"[PinyinSeek]: SortName 字段已被锁定，无需重复锁定: {item.Name} (ID: {item.Id})");
         }
 
         // --- OriginalTitle（拼音搜索标签）---
@@ -166,11 +166,11 @@ public class PinyinUpdateTask : IScheduledTask
             {
                 item.OriginalTitle = string.IsNullOrEmpty(currentOT) ? pinyinUpper : $"{currentOT}{tag}";
                 itemUpdated = true;
-                _logger.Debug($"[PinYinSort]: 已更新 OriginalTitle: {item.Name} (ID: {item.Id})");
+                _logger.Debug($"[PinyinSeek]: 已更新 OriginalTitle: {item.Name} (ID: {item.Id})");
             }
             else
             {
-                _logger.Debug($"[PinYinSort]: OriginalTitle 已包含拼音标签，无需更新: {item.Name} (ID: {item.Id})");
+                _logger.Debug($"[PinyinSeek]: OriginalTitle 已包含拼音标签，无需更新: {item.Name} (ID: {item.Id})");
             }
         }
 
