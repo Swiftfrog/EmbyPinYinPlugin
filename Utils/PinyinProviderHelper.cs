@@ -5,7 +5,7 @@ using PinYinSort.Utils;
 using System;
 using System.Linq;
 
-namespace PinYinSort.Utils;
+namespace PinyinSeek.Utils;
 
 /// <summary>
 /// 提供 PinYinSort 插件中元数据处理的通用辅助方法。
@@ -16,7 +16,7 @@ public static class PinyinProviderHelper
     /// <summary>
     /// 判断是否应更新项目的 SortName 字段。
     /// </summary>
-    public static bool ShouldUpdateSortName(BaseItem item, string expectedPinyin, PinYinSortConfig config)
+    public static bool ShouldUpdateSortName(BaseItem item, string expectedPinyin, PinyinSeekConfig config)
     {
         var current = item.SortName;
 
