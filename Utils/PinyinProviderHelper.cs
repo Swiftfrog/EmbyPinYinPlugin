@@ -1,9 +1,10 @@
 // PinyinProviderHelper.cs
 using MediaBrowser.Controller.Entities;
 using MediaBrowser.Model.Entities;
-using PinYinSort.Utils;
 using System;
 using System.Linq;
+
+using PinyinSeek.Utils;
 
 namespace PinyinSeek.Utils;
 
