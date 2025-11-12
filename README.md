@@ -1,34 +1,33 @@
 # PinyinSeek
-> **Emby Plugin** 
+**Emby Plugin** 
 > **拼音排序与搜索插件**
 
 ---
 
-PinyinSeek旨在提升中文媒体项目的排序和搜索体验。通过将中文标题转换为拼音首字母，并将其应用于 Emby 的排序和搜索功能，该插件可以显著改善中文媒体库的浏览效果。
+PinyinSeek旨在提升中文媒体项目的排序和搜索体验。
+通过将中文标题转换为拼音首字母，并将其应用于 Emby 的排序和搜索功能，该插件可以显著改善中文媒体库的浏览效果。
 
 ## 功能特性
 
-*   **拼音排序 (Pinyin Sorting):** 自动将包含中文的电影、剧集、合集等项目的 `SortName` 设置为其标题的拼音首字母（例如，“独立日” -> "DLR"），使中文项目能够按照字母顺序正确排列。
-*   **拼音搜索 (Pinyin Searching):** （可选）将拼音首字母以 `#拼音` 的形式追加到项目的 `OriginalTitle` 字段中。这使得用户可以直接在 Emby 搜索框中输入拼音来查找对应的中文媒体。
+*   **拼音排序 (Pinyin Sort):** 自动将包含中文的电影、剧集、合集等项目的 `SortName` 设置为其标题的拼音首字母（例如，“独立日” -> "DLR"），使中文项目能够按照字母顺序正确排列。
+*   **拼音搜索 (Pinyin Search):** （可选）将拼音首字母以 `#拼音` 的形式追加到项目的 `OriginalTitle` 字段中。这使得用户可以直接在 Emby 搜索框中输入拼音来查找对应的中文媒体。
 *   **智能更新:** 插件提供选项，可以选择仅在 `SortName` 为空时填充拼音，以保留用户手动设置的自定义排序。
 *   **批量处理:** 包含一个可选的计划任务，用于扫描整个媒体库，为所有符合条件的项目批量应用拼音排序和搜索标签。
 *   **字段锁定:** 自动将 `SortName` 字段锁定，防止其他元数据提供者意外覆盖插件设置的拼音排序值。
-*   **恢复处理:** ~将所有修订的`SortName`和`OriginalTitle`恢复到默认状态。~
+*   **恢复处理:** ~将所有修订的`SortName`和`OriginalTitle`恢复到默认状态。~ 开发ing
 
 ## 安装
 
-1.  从插件发布页面下载 `.dll` 文件。
-2.  将下载的 `.dll` 文件放入 Emby 服务器的插件目录（通常位于 `config/plugins`）。
+1.  从插件发布页面下载 `PinyinSeek.dll` 文件。
+2.  将下载的 `PinyinSeek.dll` 文件放入 Emby 服务器的插件目录（通常位于 `config/plugins`）。
 3.  重启 Emby 服务器。
 4.  登录 Emby Web 管理界面，在 `设置` -> `插件` -> `已安装` 中找到 "PinyinSeek" 插件并启用。
 
 ## 配置
 
-安装并重启后，可以在 Emby 服务器设置中的 `插件` -> `PinyinSeek Settings` 页面进行配置：
-
-*   **启用拼音排序 (Enable Pinyin Sorting):** 开启或关闭拼音排序功能（修改 `SortName`）。
-*   **启用拼音搜索 (Enable Pinyin Searching):** 开启或关闭拼音搜索功能（在 `OriginalTitle` 中添加 `#拼音` 标签）。
-*   **启用拼音排序或搜索任务 (Enable Pinyin Sorting or Searching Task):** 开启或关闭全库扫描的计划任务。**注意：** 该任务默认关闭，首次安装后建议手动开启一次并运行，以处理已有媒体库。之后可根据需要决定是否保持开启（新项目插件会自动处理，不需要手动任务处理。）。
+*   **启用拼音排序 (Enable Pinyin Sort):** 开启或关闭拼音排序功能（修改 `SortName`）。
+*   **启用拼音搜索 (Enable Pinyin Search):** 开启或关闭拼音搜索功能（在 `OriginalTitle` 中添加 `#拼音` 标签）。
+*   **启用拼音排序或搜索任务 (Enable Pinyin Sort or Searching Task):** 开启或关闭全库扫描的计划任务。**注意：** 该任务默认关闭，首次安装后建议手动开启一次并运行，以处理已有媒体库。之后可根据需要决定是否保持开启（新项目插件会自动处理，不需要手动任务处理。）。
 *   **启用自定义排序 (Enable Custom Sorting):** 当开启时，插件将仅在项目的 `SortName` 为空时才应用拼音排序。如果关闭，则会覆盖任何非空的 `SortName`（即使它包含中文，插件也会将其拼音化以确保正确排序）。不理解的话，还请关闭。
 
 ## 使用
@@ -38,20 +37,18 @@ PinyinSeek旨在提升中文媒体项目的排序和搜索体验。通过将中�
 
 ## 依赖
 
-*   [TinyPinyin](https://github.com/forhappy/TinyPinyin): 用于将中文字符转换为拼音。
-
-## 版本
-
-当前版本: v25.11.12
+*   [MediaBrowser.Server.Core](https://www.nuget.org/packages/MediaBrowser.Server.Core)
+*   [TinyPinyin](https://github.com/forhappy/TinyPinyin)
 
 ## 开源与贡献
 
-该项目代码已内嵌 `TinyPinyin` 库以方便部署。如果您发现了问题或有改进建议，欢迎提交 Issue 或 Pull Request。
+- **项目地址**：https://github.com/Swiftfrog/EverMedia  
+- **贡献**：欢迎提交 Issue / Pull Request  
+- **许可证**：[![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0) 任何基于本项目代码的分发（包括商业用途）**必须以相同许可证开源全部源代码**。
+- **依赖**：Emby Server 4.9.1.80，.NET 8
 
 ---
 *插件名称: PinyinSeek*
 *描述: 为 Emby 添加拼音首字母，用于排序和搜索。*# PinyinSeek
 Emby Plugin
-
-Suitable for 4.9.1.80
-x86/64
+Suitable for 4.9.1.x
