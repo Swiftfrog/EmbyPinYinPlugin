@@ -6,7 +6,7 @@ PinyinSeek旨在提升中文媒体项目的排序和搜索体验。
 
 通过将中文标题转换为拼音首字母，实现 Emby 的排序和搜索功能，改善中文媒体库的浏览效果。
 
-![LOGO](https://raw.githubusercontent.com/Swiftfrog/PinyinSeek/refs/heads/main/PinyinSeekLogo.png?token=GHSAT0AAAAAADO6U4UF6FYO3WFWOR3ZWJAS2IUPCPQ)
+![PinyinSeekLogo](https://raw.githubusercontent.com/Swiftfrog/PinyinSeek/refs/heads/main/PinyinSeekLogo.png?token=GHSAT0AAAAAADO6U4UF6FYO3WFWOR3ZWJAS2IUPCPQ)
 
 ## 功能特性
 
