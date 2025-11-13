@@ -64,6 +64,8 @@ public class PinyinRevertTask : IScheduledTask
         }
 
         var processedCount = 0;
+        var revertedCount = 0; // 新增计数器：记录实际被恢复的项目数量
+        
         foreach (var item in allItems)
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -77,6 +79,7 @@ public class PinyinRevertTask : IScheduledTask
                 {
                     item.UpdateToRepository(ItemUpdateType.MetadataEdit);
                     _logger.Debug($"[PinyinSeek]: 已恢复项目: {item.Name} (ID: {item.Id})");
+                    revertedCount++; // 只有当项目被更新时，才增加恢复计数器
                 }
             }
             catch (Exception ex)
@@ -88,7 +91,11 @@ public class PinyinRevertTask : IScheduledTask
             progress.Report((double)processedCount / totalItems * 100.0);
         }
 
-        _logger.Info($"[PinyinSeek]: 拼音数据恢复任务执行完毕。共处理 {processedCount} 个项目。");
+        // _logger.Info($"[PinyinSeek]: 拼音数据恢复任务执行完毕。共处理 {processedCount} 个项目。");
+        // 修正最终日志：明确区分“检查”和“恢复”的项目数量
+        _logger.Info($"[PinyinSeek Revert]: 拼音数据恢复任务执行完毕。共检查 {processedCount} 个项目，成功恢复 {revertedCount} 个项目。");
+        
+        
     }
 
     /// 处理单个项目，移除 PinyinSeek 添加的字段。

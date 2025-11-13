@@ -28,7 +28,7 @@ public class PinyinUpdateTask : IScheduledTask
         _logger = logger;
     }
 
-    public string Name => "PinyinSeek for Chinese";
+    public string Name => "PinyinSeek Sort&Search";
     public string Key => "PinyinToolsScheduledTask";
     public string Description => "扫描媒体库，为中文标题的媒体生成拼音简拼用于排序和搜索。";
     public string Category => "PinyinSeek";
@@ -48,7 +48,7 @@ public class PinyinUpdateTask : IScheduledTask
 
         var config = Plugin.Instance.Configuration;
 
-        // 🔑 检查是否应执行任务
+        // 检查是否应执行任务
         bool pluginEnabled = config.EnablePinyinSort || config.EnablePinyinSearch;
         if (!pluginEnabled)
         {
