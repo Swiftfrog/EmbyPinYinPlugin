@@ -64,7 +64,8 @@ public class PinyinUpdateTask : IScheduledTask
 
         var query = new InternalItemsQuery
         {
-            IncludeItemTypes = new[] { "Movie", "Series", "Episode", "MusicAlbum", "MusicArtist", "Video", "Photo", "BoxSet" },
+            // IncludeItemTypes = new[] { "Movie", "Series", "Episode", "MusicAlbum", "MusicArtist", "Video", "Photo", "BoxSet" },
+            IncludeItemTypes = new[] { "Movie", "Series", "BoxSet" },
             Recursive = true,
             IsVirtualItem = false
         };

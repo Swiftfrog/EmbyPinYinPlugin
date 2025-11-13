@@ -47,8 +47,8 @@ public class PinyinRevertTask : IScheduledTask
 
         var query = new InternalItemsQuery
         {
-            // 查询与 UpdateTask 相同的项目类型
-            IncludeItemTypes = new[] { "Movie", "Series", "Episode", "MusicAlbum", "MusicArtist", "Video", "Photo", "BoxSet" },
+            // IncludeItemTypes = new[] { "Movie", "Series", "Episode", "MusicAlbum", "MusicArtist", "Video", "Photo", "BoxSet" },
+            IncludeItemTypes = new[] { "Movie", "Series", "BoxSet" },
             Recursive = true,
             IsVirtualItem = false
         };
