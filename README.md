@@ -1,12 +1,16 @@
 # PinyinSeek
+
 **Emby Plugin** 
+
 > **拼音排序与搜索插件**
 
-PinyinSeek旨在提升中文媒体项目的排序和搜索体验。
+PinyinSeek 实现中文媒体项目的排序和搜索体验。
 
 通过将中文标题转换为拼音首字母，实现 Emby 的排序和搜索功能，改善中文媒体库的浏览效果。
 
-![PinyinSeekLogo](https://raw.githubusercontent.com/Swiftfrog/PinyinSeek/refs/heads/main/PinyinSeekLogo.png?token=GHSAT0AAAAAADO6U4UF6FYO3WFWOR3ZWJAS2IUPCPQ)
+> 多音字问题是在太难，能力有限，解决不了。例如：谍影重重 => DYZZ
+
+![PinyinSeekLogo](https://raw.githubusercontent.com/Swiftfrog/swiftfrog.github.io/master/PinyinSeekLogo.png)
 
 ## 功能特性
 
@@ -14,7 +18,7 @@ PinyinSeek旨在提升中文媒体项目的排序和搜索体验。
 *   **拼音搜索 (Pinyin Search):** 在项目的 `OriginalTitle` 字段添加 `#拼音`，实现对拼音的搜索。
 *   **智能更新:** 开启后，仅在 `SortName` 为空时填充拼音，以保留用户手动设置的自定义排序。
 *   **批量处理:** 扫描整个媒体库，为所有中文标题批量应用拼音排序和搜索标签。
-*   **恢复处理:** ~扫描整个媒体库，恢复到默认状态。~ **开发ing**
+*   **恢复处理:** 扫描整个媒体库，恢复到默认状态。
 
 ## 安装
 
@@ -27,6 +31,7 @@ PinyinSeek旨在提升中文媒体项目的排序和搜索体验。
 
 *   **即时处理:** 添加或者刷新媒体，自动更新中文标题的排序和搜索。
 *   **批量处理:** 手动刷新整个媒体库的中文标题排序和搜索。也可以添加计划任务。
+*   **批量恢复:** 执行计划任务，恢复到默认状态。
 
 ## 开源与贡献
 
