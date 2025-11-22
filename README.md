@@ -8,8 +8,6 @@ PinyinSeek 实现中文媒体项目的排序和搜索体验。
 
 通过将中文标题转换为拼音首字母，实现 Emby 的排序和搜索功能，改善中文媒体库的浏览效果。
 
-> 多音字问题是在太难，能力有限，解决不了。例如：谍影重重 => DYZZ
-
 ![PinyinSeekLogo](https://raw.githubusercontent.com/Swiftfrog/swiftfrog.github.io/master/PinyinSeekLogo.png)
 
 ## 功能特性
@@ -19,6 +17,8 @@ PinyinSeek 实现中文媒体项目的排序和搜索体验。
 *   **智能更新:** 开启后，仅在 `SortName` 为空时填充拼音，以保留用户手动设置的自定义排序。
 *   **批量处理:** 扫描整个媒体库，为所有中文标题批量应用拼音排序和搜索标签。
 *   **恢复处理:** 扫描整个媒体库，恢复到默认状态。
+
+> 存在多音字问题，能力有限，暂时未解决。例如：谍影重重 => DYZZ
 
 ## 安装
 
