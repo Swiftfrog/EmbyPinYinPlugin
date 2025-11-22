@@ -38,9 +38,3 @@ PinyinSeek 实现中文媒体项目的排序和搜索体验。
 - **项目地址**：https://github.com/Swiftfrog/EverMedia  
 - **贡献**：欢迎提交 Issue / Pull Request  
 - **许可证**：[![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0) 任何基于本项目代码的分发（包括商业用途）**必须以相同许可证开源全部源代码**。
-- [MediaBrowser.Server.Core](https://www.nuget.org/packages/MediaBrowser.Server.Core)
-- [TinyPinyin](https://github.com/forhappy/TinyPinyin)
-
----
-*插件名称: PinyinSeek*
-*描述: 为 Emby 添加拼音首字母，用于排序和搜索。*
