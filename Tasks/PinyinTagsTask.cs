@@ -261,8 +261,8 @@ public class PinyinTagsTask : IScheduledTask
     private class ImdbMovie
     {
         public string? Id { get; set; }
-        public string? Rank { get; set; }
+        public int Rank { get; set; }
         public string? Title { get; set; }
-        public string? Year { get; set; }
+        public int Year { get; set; }
     }
 }
