@@ -1,4 +1,4 @@
-// PinyinUpdateTask.cs
+// PinyinSortSearchTask.cs
 using MediaBrowser.Model.Tasks;
 using MediaBrowser.Controller.Library;
 using MediaBrowser.Model.Entities;
@@ -17,19 +17,19 @@ namespace PinyinSeek.Tasks;
 
 /// 批量处理媒体库的拼音排序与搜索标签。
 /// 仅当插件功能启用且任务开关开启时执行。
-public class PinyinUpdateTask : IScheduledTask
+public class PinyinSortSearchTask : IScheduledTask
 {
     private readonly ILibraryManager _libraryManager;
     private readonly ILogger _logger;
 
-    public PinyinUpdateTask(ILibraryManager libraryManager, ILogger logger)
+    public PinyinSortSearchTask(ILibraryManager libraryManager, ILogger logger)
     {
         _libraryManager = libraryManager;
         _logger = logger;
     }
 
     public string Name => "PinyinSeek Sort&Search";
-    public string Key => "PinyinUpdateTask";
+    public string Key => "PinyinSeekSortSearchTask";
     public string Description => "扫描媒体库，为中文标题的媒体生成拼音简拼用于排序和搜索。";
     public string Category => "PinyinSeek";
 

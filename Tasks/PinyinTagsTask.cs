@@ -1,4 +1,4 @@
-// Tasks/PinyinCountryTagTask.cs
+// Tasks/PinyinTagsTask.cs
 using MediaBrowser.Model.Tasks;
 using MediaBrowser.Controller.Library;
 using MediaBrowser.Model.Entities;
@@ -19,12 +19,12 @@ namespace PinyinSeek.Tasks;
 /// 为媒体项添加原产国家作为标签，使用"中文 [代码]"格式。
 /// 仅当插件功能启用且任务开关开启时执行。
 /// </summary>
-public class PinyinCountryTagTask : IScheduledTask
+public class PinyinTagsTask : IScheduledTask
 {
     private readonly ILibraryManager _libraryManager;
     private readonly ILogger _logger;
 
-    public PinyinCountryTagTask(ILibraryManager libraryManager, ILogger logger)
+    public PinyinTagsTask(ILibraryManager libraryManager, ILogger logger)
     {
         _libraryManager = libraryManager;
         _logger = logger;
