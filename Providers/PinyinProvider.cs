@@ -45,18 +45,13 @@ public abstract class BasePinyinProvider<T> : ICustomMetadataProvider<T>, IHasOr
             return false;
 
         // 从 ProductionLocations 获取主产国
-        // var country = item.ProductionLocations?.FirstOrDefault();
-        ////映射英语国家到中文
         var originalCountry = item.ProductionLocations?.FirstOrDefault();
         if (string.IsNullOrEmpty(originalCountry))
             return false;
-        
+
+        //映射英语国家到中文
         var displayCountry = CountryMapper.GetLocalizedCountry(originalCountry);
         
-        // if (string.IsNullOrEmpty(country))
-        //     _logger.Debug($"[PinyinSeek]: 没有OriginalCountry值。")
-        //     return false;
-
         // 避免重复添加
         if (item.Tags?.Contains(displayCountry, StringComparer.OrdinalIgnoreCase) == true)
             return false;
@@ -65,7 +60,6 @@ public abstract class BasePinyinProvider<T> : ICustomMetadataProvider<T>, IHasOr
         var newTags = (item.Tags ?? Array.Empty<string>()).ToList();
         newTags.Add(displayCountry);
         item.Tags = newTags.ToArray();
-        // _logger.Debug($"[PinyinSeek] {_typeName}: 已添加国家标签 \"{displayCountry}\"。ID: {item.Id}");
         _logger.Debug($"[PinyinSeek] {_typeName}: 已添加国家标签 \"{displayCountry}\"（原值: {originalCountry}）。ID: {item.Id}");
         return true;
     }
