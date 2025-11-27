@@ -6,6 +6,7 @@ using MediaBrowser.Model.Querying;
 using MediaBrowser.Model.Logging;
 using MediaBrowser.Controller.Entities;
 using MediaBrowser.Controller.Entities.Movies; // 👈 修复 Movie 类型
+using MediaBrowser.Common.Configuration; // 👈 【关键】添加这个引用
 using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
@@ -26,11 +27,13 @@ public class PinyinTagsTask : IScheduledTask
 {
     private readonly ILibraryManager _libraryManager;
     private readonly ILogger _logger;
+    private readonly IApplicationPaths _appPaths; // 👈 【关键】定义字段
 
     public PinyinTagsTask(ILibraryManager libraryManager, ILogger logger)
     {
         _libraryManager = libraryManager;
         _logger = logger;
+        _appPaths = appPaths;
     }
 
     public string Name => "Update Pinyin & Country & IMDb Tags";
@@ -128,9 +131,9 @@ public class PinyinTagsTask : IScheduledTask
     /// </summary>
     private async Task TryUpdateImdbTop250Json()
     {
-        // 👇 修复 ApplicationHost 访问方式
+        // 👇 【关键】修复路径获取方式，使用注入的 _appPaths
         var jsonPath = Path.Combine(
-            Plugin.Instance.ApplicationHost.ApplicationPaths.ConfigurationDirectoryPath,
+            _appPaths.ConfigurationDirectoryPath, 
             "imdb_top250.json"
         );
         var url = "https://raw.githubusercontent.com/theapache64/top250/master/top250_min.json";
@@ -163,10 +166,12 @@ public class PinyinTagsTask : IScheduledTask
     /// </summary>
     private HashSet<string> LoadImdbTop250IdsFromLocal()
     {
+        // 👇 【关键】这里也要改成使用 _appPaths
         var jsonPath = Path.Combine(
-            Plugin.Instance.ApplicationHost.ApplicationPaths.ConfigurationDirectoryPath,
+            _appPaths.ConfigurationDirectoryPath,
             "imdb_top250.json"
         );
+        
         if (!File.Exists(jsonPath))
         {
             _logger.Debug("[PinyinTags] 本地 IMDb Top 250 缓存不存在。");
