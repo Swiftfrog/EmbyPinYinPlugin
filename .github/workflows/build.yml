@@ -3,7 +3,7 @@ name: Build PinyinSeek Plugin
 on:
   workflow_dispatch:
   push:
-    branches: [ "main" ]
+    branches: [ "main", "v*" ]
     tags: [ "v*" ]
   pull_request:
 #    branches: [ "main" ]
