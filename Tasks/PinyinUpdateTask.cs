@@ -29,7 +29,7 @@ public class PinyinUpdateTask : IScheduledTask
     }
 
     public string Name => "PinyinSeek Sort&Search";
-    public string Key => "PinyinToolsScheduledTask";
+    public string Key => "PinyinUpdateTask";
     public string Description => "扫描媒体库，为中文标题的媒体生成拼音简拼用于排序和搜索。";
     public string Category => "PinyinSeek";
 

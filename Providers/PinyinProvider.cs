@@ -2,7 +2,6 @@
 using MediaBrowser.Controller.Entities;
 using MediaBrowser.Controller.Entities.Movies;
 using MediaBrowser.Controller.Entities.TV;
-using MediaBrowser.Controller.Entities.Audio;
 using MediaBrowser.Controller.Providers;
 using MediaBrowser.Controller.Library;
 using MediaBrowser.Model.Configuration;
@@ -12,11 +11,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Linq;
 using System;
-
 using PinyinSeek.Utils;
 
 namespace PinyinSeek.Providers;
 
+// =============== 基础提供者类（复用代码）==============
 public abstract class BasePinyinProvider<T> : ICustomMetadataProvider<T>, IHasOrder
     where T : BaseItem
 {
@@ -30,39 +29,12 @@ public abstract class BasePinyinProvider<T> : ICustomMetadataProvider<T>, IHasOr
     }
 
     public int Order => 0;
-
     public string Name => $"Pinyin Sort & Search Provider ({_typeName})";
-
     public abstract Task<ItemUpdateType> FetchAsync(
         MetadataResult<T> itemResult,
         MetadataRefreshOptions options,
         LibraryOptions libraryOptions,
         CancellationToken cancellationToken);
-
-    protected bool TryAddCountryTag(T item, PinyinSeekConfig config)
-    {
-        if (!config.EnableCountryAsTag)
-            return false;
-
-        // 从 ProductionLocations 获取主产国
-        var originalCountry = item.ProductionLocations?.FirstOrDefault();
-        if (string.IsNullOrEmpty(originalCountry))
-            return false;
-
-        //映射英语国家到中文
-        var displayCountry = CountryMapper.GetLocalizedCountry(originalCountry);
-        
-        // 避免重复添加
-        if (item.Tags?.Contains(displayCountry, StringComparer.OrdinalIgnoreCase) == true)
-            return false;
-
-        // 添加国家标签
-        var newTags = (item.Tags ?? Array.Empty<string>()).ToList();
-        newTags.Add(displayCountry);
-        item.Tags = newTags.ToArray();
-        _logger.Debug($"[PinyinSeek] {_typeName}: 已添加国家标签 \"{displayCountry}\"（原值: {originalCountry}）。ID: {item.Id}");
-        return true;
-    }
 }
 
 // =============== Movie Provider ===============
@@ -86,9 +58,9 @@ public class PinyinProviderMovie : BasePinyinProvider<Movie>
             return ItemUpdateType.None;
         }
 
-        var updated = false;
+        bool updated = false;
 
-        // === 拼音处理 ===
+        // 处理拼音
         if (PinyinHelper.ContainsChinese(nameToProcess))
         {
             string pinyinInitials = await Task.Run(() => PinyinHelper.GetPinyinInitials(nameToProcess), cancellationToken);
@@ -118,8 +90,8 @@ public class PinyinProviderMovie : BasePinyinProvider<Movie>
             }
         }
 
-        // === 国家标签处理（无论是否中文）===
-        if (TryAddCountryTag(item, config))
+        // 处理国家标签 - 复用 CountryTagHelper
+        if (CountryTagHelper.TryAddCountryTag(item, config, _logger, _typeName))
         {
             updated = true;
         }
@@ -149,9 +121,9 @@ public class PinyinProviderSeries : BasePinyinProvider<Series>
             return ItemUpdateType.None;
         }
 
-        var updated = false;
+        bool updated = false;
 
-        // === 拼音处理 ===
+        // 处理拼音
         if (PinyinHelper.ContainsChinese(nameToProcess))
         {
             string pinyinInitials = await Task.Run(() => PinyinHelper.GetPinyinInitials(nameToProcess), cancellationToken);
@@ -181,8 +153,8 @@ public class PinyinProviderSeries : BasePinyinProvider<Series>
             }
         }
 
-        // === 国家标签处理（无论是否中文）===
-        if (TryAddCountryTag(item, config))
+        // 处理国家标签 - 复用 CountryTagHelper
+        if (CountryTagHelper.TryAddCountryTag(item, config, _logger, _typeName))
         {
             updated = true;
         }
@@ -212,9 +184,9 @@ public class PinyinProviderBoxSet : BasePinyinProvider<BoxSet>
             return ItemUpdateType.None;
         }
 
-        var updated = false;
+        bool updated = false;
 
-        // === 拼音处理 ===
+        // 处理拼音
         if (PinyinHelper.ContainsChinese(nameToProcess))
         {
             string pinyinInitials = await Task.Run(() => PinyinHelper.GetPinyinInitials(nameToProcess), cancellationToken);
@@ -244,8 +216,8 @@ public class PinyinProviderBoxSet : BasePinyinProvider<BoxSet>
             }
         }
 
-        // === 国家标签处理（无论是否中文）===
-        if (TryAddCountryTag(item, config))
+        // 处理国家标签 - 复用 CountryTagHelper
+        if (CountryTagHelper.TryAddCountryTag(item, config, _logger, _typeName))
         {
             updated = true;
         }

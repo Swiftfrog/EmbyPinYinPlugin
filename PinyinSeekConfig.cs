@@ -34,4 +34,9 @@ public class PinyinSeekConfig : EditableOptionsBase
     [Description("启用后，媒体项的原产国家将自动作为标签添加")]
     public bool EnableCountryAsTag { get; set; } = false;
     
+    /// 是否启用国家标签计划任务
+    [DisplayName("启用国家标签任务")]
+    [Description("是否启用批量更新国家标签的计划任务。默认关闭。")]
+    public bool EnableCountryTagTask { get; set; } = false;
+    
 }
