@@ -258,11 +258,36 @@ public class PinyinTagsTask : IScheduledTask
     /// <summary>
     /// IMDb Top 250 JSON 数据结构。
     /// </summary>
+    /// <summary>
+    /// 适配 theapache64/top250 的 JSON 数据结构
+    /// </summary>
     private class ImdbMovie
     {
-        public string? Id { get; set; }
-        public int Rank { get; set; }
-        public string? Title { get; set; }
+        // 1. 映射 JSON 中的 "name" 字段
+        [System.Text.Json.Serialization.JsonPropertyName("name")]
+        public string? Name { get; set; }
+
+        // 2. 映射 JSON 中的 "year" 字段 (注意：它是数字 int)
+        [System.Text.Json.Serialization.JsonPropertyName("year")]
         public int Year { get; set; }
+
+        // 3. 映射 JSON 中的 "imdb_url" 字段，例如 "/title/tt0055630/"
+        [System.Text.Json.Serialization.JsonPropertyName("imdb_url")]
+        public string? ImdbUrlRaw { get; set; }
+
+        // 4. 计算属性：从 ImdbUrlRaw 中提取真正的 ID (ttxxxxxx)
+        // 代码其他地方调用 .Id 时，会自动执行这个提取逻辑
+        public string? Id
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(ImdbUrlRaw)) return null;
+
+                // 逻辑：通过 '/' 分割字符串，找到以 "tt" 开头的那一段
+                // "/title/tt0055630/" -> ["", "title", "tt0055630", ""]
+                var parts = ImdbUrlRaw.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+                return parts.FirstOrDefault(p => p.StartsWith("tt", StringComparison.OrdinalIgnoreCase));
+            }
+        }
     }
 }
