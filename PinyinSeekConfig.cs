@@ -39,4 +39,9 @@ public class PinyinSeekConfig : EditableOptionsBase
     [Description("是否启用批量更新国家标签的计划任务。默认关闭。")]
     public bool EnableCountryTagTask { get; set; } = false;
     
+    // =============== 新增 IMDb Top 标签相关配置 ===============
+    [DisplayName("启用 IMDb Top 标签")]
+    [Description("为 IMDb Top 250 电影自动添加 'IMDb Top' 标签")]
+    public bool EnableImdbTopTag { get; set; } = false;
+    
 }
