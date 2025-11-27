@@ -5,6 +5,7 @@ using MediaBrowser.Model.Entities;
 using MediaBrowser.Model.Querying;
 using MediaBrowser.Model.Logging;
 using MediaBrowser.Controller.Entities;
+using MediaBrowser.Controller.Entities.Movies; // 👈 修复 Movie 类型
 using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
@@ -13,6 +14,7 @@ using System.Linq;
 using System.IO;
 using System.Net.Http;
 using System.Text.Json;
+using PinyinSeek.Utils; // 👈 修复 CountryTagHelper
 
 namespace PinyinSeek.Tasks;
 
@@ -33,7 +35,7 @@ public class PinyinTagsTask : IScheduledTask
 
     public string Name => "Update Pinyin & Country & IMDb Tags";
     public string Key => "PinyinTagsTask";
-    public string Description => "扫描媒体库，为项目添加 国家 和 IMDb Top 标签。";
+    public string Description => "扫描媒体库，为项目添加拼音、国家和 IMDb Top 标签。";
     public string Category => "PinyinSeek";
 
     // 默认每天凌晨 4 点执行
@@ -107,6 +109,7 @@ public class PinyinTagsTask : IScheduledTask
             }
             catch (Exception ex)
             {
+                // 👇 修复 ILogger.Error 签名
                 _logger.Error($"[PinyinTags]: 处理项目时出错: {item.Name} (ID: {item.Id})", ex);
             }
 
@@ -125,7 +128,11 @@ public class PinyinTagsTask : IScheduledTask
     /// </summary>
     private async Task TryUpdateImdbTop250Json()
     {
-        var jsonPath = GetImdbTop250JsonPath();
+        // 👇 修复 ApplicationHost 访问方式
+        var jsonPath = Path.Combine(
+            Plugin.Instance.ApplicationHost.ApplicationPaths.ConfigurationDirectoryPath,
+            "imdb_top250.json"
+        );
         var url = "https://raw.githubusercontent.com/theapache64/top250/master/top250_min.json";
 
         try
@@ -146,20 +153,9 @@ public class PinyinTagsTask : IScheduledTask
         }
         catch (Exception ex)
         {
-            _logger.Warn(ex, "[PinyinTags] 从网络更新 IMDb Top 250 失败，将使用本地缓存（如果存在）。");
+            // 👇 修复 ILogger.Error 签名
+            _logger.Error("[PinyinTags] 从网络更新 IMDb Top 250 失败，将使用本地缓存（如果存在）。", ex);
         }
-    }
-
-    /// <summary>
-    /// 获取 IMDb Top 250 JSON 文件的路径。
-    /// 直接放在 configurations 根目录下。
-    /// </summary>
-    private string GetImdbTop250JsonPath()
-    {
-        return Path.Combine(
-            Plugin.Instance.ApplicationHost.ApplicationPaths.ConfigurationDirectoryPath,
-            "imdb_top250.json"
-        );
     }
 
     /// <summary>
@@ -167,7 +163,10 @@ public class PinyinTagsTask : IScheduledTask
     /// </summary>
     private HashSet<string> LoadImdbTop250IdsFromLocal()
     {
-        var jsonPath = GetImdbTop250JsonPath();
+        var jsonPath = Path.Combine(
+            Plugin.Instance.ApplicationHost.ApplicationPaths.ConfigurationDirectoryPath,
+            "imdb_top250.json"
+        );
         if (!File.Exists(jsonPath))
         {
             _logger.Debug("[PinyinTags] 本地 IMDb Top 250 缓存不存在。");
@@ -194,7 +193,8 @@ public class PinyinTagsTask : IScheduledTask
         }
         catch (Exception ex)
         {
-            _logger.Error(ex, "[PinyinTags] 解析本地 IMDb Top 250 缓存失败。");
+            // 👇 修复 ILogger.Error 签名
+            _logger.Error("[PinyinTags] 解析本地 IMDb Top 250 缓存失败。", ex);
             return new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         }
     }
@@ -209,7 +209,7 @@ public class PinyinTagsTask : IScheduledTask
         // --- 1. 添加国家标签 ---
         if (config.EnableCountryAsTag)
         {
-            // 复用 CountryTagHelper 中的逻辑
+            // 👇 CountryTagHelper 已通过 using 引入
             if (CountryTagHelper.TryAddCountryTag(item, config, _logger, "PinyinTagsTask"))
             {
                 updated = true;
