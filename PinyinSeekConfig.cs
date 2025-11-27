@@ -29,4 +29,9 @@ public class PinyinSeekConfig : EditableOptionsBase
     [Description("打开情况下，自定义排序不会被修订。如果自定义排序是中文，依旧会被拼音化。不理解，请关闭。")]
     public bool OnlyFillWhenEmpty { get; set; } = false;
     
+    /// 添加original Country
+    [DisplayName("将原产国家作为标签")]
+    [Description("启用后，媒体项的原产国家将自动作为标签添加")]
+    public bool EnableCountryAsTag { get; set; } = false;
+    
 }
