@@ -16,12 +16,15 @@ public class Plugin : BasePluginSimpleUI<PinyinSeekConfig>, IHasThumbImage
     public override Guid Id => new Guid("B250C7F4-4E2B-4E7C-8B9A-123456789ABC");
         
     public static Plugin Instance { get; private set; } = null!;
-
+    
+    public IApplicationHost ApplicationHost { get; }
+    
     public PinyinSeekConfig Configuration => GetOptions();
 
     public Plugin(IApplicationHost applicationHost) : base(applicationHost)
     {
         Instance = this;
+        ApplicationHost = applicationHost;
     }
 
     // 实现 IHasThumbImage
