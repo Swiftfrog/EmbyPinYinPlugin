@@ -227,11 +227,11 @@ public class PinyinTagsTask : IScheduledTask
             var imdbId = movie.ProviderIds?.GetValueOrDefault("Imdb");
             if (!string.IsNullOrEmpty(imdbId) && imdbTop250Ids.Contains(imdbId))
             {
-                if (!HasTag(movie, "IMDb Top"))
+                if (!HasTag(movie, "IMDb Top 250"))
                 {
-                    AddTag(movie, "IMDb Top");
+                    AddTag(movie, "IMDb Top 250");
                     updated = true;
-                    _logger.Debug($"[PinyinTags] 添加 IMDb Top 标签: {movie.Name} (ID: {imdbId})");
+                    _logger.Debug($"[PinyinTags] 添加 IMDb Top 250 标签: {movie.Name} (ID: {imdbId})");
                 }
             }
         }
