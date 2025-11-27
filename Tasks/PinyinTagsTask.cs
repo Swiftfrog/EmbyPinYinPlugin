@@ -29,7 +29,7 @@ public class PinyinTagsTask : IScheduledTask
     private readonly ILogger _logger;
     private readonly IApplicationPaths _appPaths; // 👈 【关键】定义字段
 
-    public PinyinTagsTask(ILibraryManager libraryManager, ILogger logger)
+    public PinyinTagsTask(ILibraryManager libraryManager, ILogger logger, IApplicationPaths appPaths)
     {
         _libraryManager = libraryManager;
         _logger = logger;
