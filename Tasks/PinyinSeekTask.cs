@@ -17,6 +17,8 @@ using System.Net.Http;
 using System.Text.Json;
 using PinyinSeek.Utils;
 
+#nullable enable
+
 namespace PinyinSeek.Tasks;
 
 /// <summary>
