@@ -12,8 +12,7 @@ using System.Threading.Tasks;
 using System.Linq;
 using System;
 using PinyinSeek.Utils;
-using MediaBrowser.Model.Providers; // 关键：包含 ItemLookupInfo
-using MediaBrowser.Controller.Entities.Audio; // 确保所有实体类型可用
+using MediaBrowser.Model.Providers; // 添加这个命名空间
 
 namespace PinyinSeek.Providers;
 
@@ -43,8 +42,8 @@ public abstract class BasePinyinProvider<T> : ICustomMetadataProvider<T>, IHasOr
     /// </summary>
     protected string? GetOriginCountryFromLookupInfo(ItemLookupInfo lookupInfo)
     {
-        // 修正：ItemLookupInfo.ProductionLocations 是 List<string> 类型
-        if (lookupInfo.ProductionLocations != null && lookupInfo.ProductionLocations.Count > 0)
+        // 正确获取 ProductionLocations
+        if (lookupInfo.ProductionLocations?.Count > 0)
         {
             return lookupInfo.ProductionLocations[0];
         }
@@ -128,10 +127,10 @@ public class PinyinProviderMovie : BasePinyinProvider<Movie>
             }
         }
 
-        // 修正：直接使用 itemResult.ItemLookupInfo，不是 Result
-        if (config.EnableCountryAsTag && itemResult.ItemLookupInfo != null)
+        // 处理国家标签
+        if (config.EnableCountryAsTag && itemResult.Result != null)
         {
-            string? originCountry = GetOriginCountryFromLookupInfo(itemResult.ItemLookupInfo);
+            string? originCountry = GetOriginCountryFromLookupInfo(itemResult.Result);
             if (TryAddCountryTag(item, originCountry, _logger, _typeName))
             {
                 updated = true;
@@ -195,10 +194,10 @@ public class PinyinProviderSeries : BasePinyinProvider<Series>
             }
         }
 
-        // 修正：直接使用 itemResult.ItemLookupInfo
-        if (config.EnableCountryAsTag && itemResult.ItemLookupInfo != null)
+        // 处理国家标签
+        if (config.EnableCountryAsTag && itemResult.Result != null)
         {
-            string? originCountry = GetOriginCountryFromLookupInfo(itemResult.ItemLookupInfo);
+            string? originCountry = GetOriginCountryFromLookupInfo(itemResult.Result);
             if (TryAddCountryTag(item, originCountry, _logger, _typeName))
             {
                 updated = true;
@@ -262,10 +261,10 @@ public class PinyinProviderBoxSet : BasePinyinProvider<BoxSet>
             }
         }
 
-        // 修正：直接使用 itemResult.ItemLookupInfo
-        if (config.EnableCountryAsTag && itemResult.ItemLookupInfo != null)
+        // 处理国家标签
+        if (config.EnableCountryAsTag && itemResult.Result != null)
         {
-            string? originCountry = GetOriginCountryFromLookupInfo(itemResult.ItemLookupInfo);
+            string? originCountry = GetOriginCountryFromLookupInfo(itemResult.Result);
             if (TryAddCountryTag(item, originCountry, _logger, _typeName))
             {
                 updated = true;
