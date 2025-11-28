@@ -1,16 +1,15 @@
 // Utils/CountryMapper.cs
-using System.Collections.Generic;
 using System;
+using System.Collections.Generic;
 
 namespace PinyinSeek.Utils;
 
 /// <summary>
 /// 提供 ISO 3166-1 两位字母国家代码到中文国家名称的映射。
-/// 用于将 TMDb origin_country（如 "US"）转换为用户友好的中文标签（如 "美国"）。
 /// </summary>
 public static class CountryMapper
 {
-    private static readonly Dictionary<string, string> _countryMap = new(StringComparer.OrdinalIgnoreCase)
+    private static readonly Dictionary<string, string> _countryMap = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
     {
         // Americas
         { "US", "美国" },
@@ -123,7 +122,7 @@ public static class CountryMapper
         { "ET", "埃塞俄比亚" },
         { "SD", "苏丹" },
 
-        // Special Administrative Regions (common in media context)
+        // Special Administrative Regions
         { "HK", "中国香港" },
         { "MO", "中国澳门" },
         { "TW", "中国台湾" }
@@ -134,11 +133,14 @@ public static class CountryMapper
     /// </summary>
     /// <param name="countryCode">例如 "US", "GB", "CN"</param>
     /// <returns>中文国家名，如 "美国"；若未知则返回 null</returns>
-    public static string GetLocalizedCountry(string countryCode)
+    public static string? GetLocalizedCountry(string? countryCode)
     {
         if (string.IsNullOrEmpty(countryCode))
             return null;
 
-        return _countryMap.TryGetValue(countryCode, out var name) ? name : null;
+        if (_countryMap.TryGetValue(countryCode, out var name))
+            return name;
+        
+        return null;
     }
 }
