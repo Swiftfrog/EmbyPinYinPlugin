@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using System.Linq;
 using System;
 using PinyinSeek.Utils;
+using MediaBrowser.Model.Providers; // 添加这个命名空间
 
 namespace PinyinSeek.Providers;
 
@@ -35,6 +36,42 @@ public abstract class BasePinyinProvider<T> : ICustomMetadataProvider<T>, IHasOr
         MetadataRefreshOptions options,
         LibraryOptions libraryOptions,
         CancellationToken cancellationToken);
+
+    /// <summary>
+    /// 通用方法：从 ItemLookupInfo 中提取 origin_country（TMDb 的 origin_country）
+    /// </summary>
+    protected string? GetOriginCountryFromLookupInfo(ItemLookupInfo lookupInfo)
+    {
+        // 正确获取 ProductionLocations
+        if (lookupInfo.ProductionLocations?.Count > 0)
+        {
+            return lookupInfo.ProductionLocations[0];
+        }
+        return null;
+    }
+
+    /// <summary>
+    /// 通用方法：尝试添加国家标签
+    /// </summary>
+    protected bool TryAddCountryTag(BaseItem item, string? originCountry, ILogger logger, string typeName)
+    {
+        if (string.IsNullOrEmpty(originCountry))
+            return false;
+
+        string? displayCountry = CountryMapper.GetLocalizedCountry(originCountry);
+        if (string.IsNullOrEmpty(displayCountry))
+            return false;
+
+        if (item.Tags?.Contains(displayCountry, StringComparer.OrdinalIgnoreCase) == true)
+            return false;
+
+        var tags = (item.Tags ?? Array.Empty<string>()).ToList();
+        tags.Add(displayCountry);
+        item.Tags = tags.ToArray();
+
+        logger.Debug($"[PinyinSeek] {typeName}: 已添加国家标签 \"{displayCountry}\"（原值: {originCountry}）。ID: {item.Id}");
+        return true;
+    }
 }
 
 // =============== Movie Provider ===============
@@ -54,7 +91,7 @@ public class PinyinProviderMovie : BasePinyinProvider<Movie>
 
         if (string.IsNullOrEmpty(nameToProcess))
         {
-            _logger.Debug("[PinyinSeek] Movie: 名称为空，跳过处理。Item ID: {0}", item.Id);
+            _logger.Debug($"[PinyinSeek] Movie: 名称为空，跳过处理。Item ID: {item.Id}");
             return ItemUpdateType.None;
         }
 
@@ -73,51 +110,30 @@ public class PinyinProviderMovie : BasePinyinProvider<Movie>
                     item.SetSortNameDirect(pinyinUpper);
                     PinyinProviderHelper.SafeAddLockedField(item, MetadataFields.SortName);
                     updated = true;
-                    _logger.Debug("[PinyinSeek] Movie: 已更新 SortName 为 {0}。名称: {1}, ID: {2}", pinyinUpper, item.Name, item.Id);
+                    _logger.Debug($"[PinyinSeek] Movie: 已更新 SortName 为 {pinyinUpper}。名称: {item.Name}, ID: {item.Id}");
                 }
 
                 if (config.EnablePinyinSearch)
                 {
                     var currentOT = item.OriginalTitle ?? string.Empty;
                     var tag = $" #{pinyinUpper}";
-                    if (!currentOT.Contains(tag))
+                    if (!currentOT.Contains(tag, StringComparison.OrdinalIgnoreCase))
                     {
                         item.OriginalTitle = string.IsNullOrEmpty(currentOT) ? pinyinUpper : $"{currentOT}{tag}";
                         updated = true;
-                        _logger.Debug("[PinyinSeek] Movie: 已更新 OriginalTitle。新值: {0}, ID: {1}", item.OriginalTitle, item.Id);
+                        _logger.Debug($"[PinyinSeek] Movie: 已更新 OriginalTitle。新值: {item.OriginalTitle}, ID: {item.Id}");
                     }
                 }
             }
         }
 
-        // 处理国家标签 - 复用 CountryTagHelper
         // 处理国家标签
-        if (config.EnableCountryAsTag)
+        if (config.EnableCountryAsTag && itemResult.Result != null)
         {
-            string? originCountry = null;
-        
-            // ✅ 从 MovieInfo 获取 origin_country（TMDb 的 origin_country）
-            if (itemResult.ItemLookupInfo is MovieInfo movieInfo)
+            string? originCountry = GetOriginCountryFromLookupInfo(itemResult.Result);
+            if (TryAddCountryTag(item, originCountry, _logger, _typeName))
             {
-                // ProductionLocations 可能为 null 或空数组
-                if (movieInfo.ProductionLocations?.Length > 0)
-                {
-                    originCountry = movieInfo.ProductionLocations[0];
-                }
-            }
-        
-            if (!string.IsNullOrEmpty(originCountry))
-            {
-                string displayCountry = CountryMapper.GetLocalizedCountry(originCountry);
-                if (!string.IsNullOrEmpty(displayCountry) && 
-                    !item.Tags.Contains(displayCountry, StringComparer.OrdinalIgnoreCase))
-                {
-                    var tags = (item.Tags ?? Array.Empty<string>()).ToList();
-                    tags.Add(displayCountry);
-                    item.Tags = tags.ToArray();
-                    updated = true;
-                    _logger.Debug($"[PinyinSeek] Movie: 已添加国家标签 \"{displayCountry}\"（原值: {originCountry}）。ID: {item.Id}");
-                }
+                updated = true;
             }
         }
 
@@ -142,7 +158,7 @@ public class PinyinProviderSeries : BasePinyinProvider<Series>
 
         if (string.IsNullOrEmpty(nameToProcess))
         {
-            _logger.Debug("[PinyinSeek] Series: 名称为空，跳过处理。Item ID: {0}", item.Id);
+            _logger.Debug($"[PinyinSeek] Series: 名称为空，跳过处理。Item ID: {item.Id}");
             return ItemUpdateType.None;
         }
 
@@ -161,27 +177,31 @@ public class PinyinProviderSeries : BasePinyinProvider<Series>
                     item.SetSortNameDirect(pinyinUpper);
                     PinyinProviderHelper.SafeAddLockedField(item, MetadataFields.SortName);
                     updated = true;
-                    _logger.Debug("[PinyinSeek] Series: 已更新 SortName 为 {0}。名称: {1}, ID: {2}", pinyinUpper, item.Name, item.Id);
+                    _logger.Debug($"[PinyinSeek] Series: 已更新 SortName 为 {pinyinUpper}。名称: {item.Name}, ID: {item.Id}");
                 }
 
                 if (config.EnablePinyinSearch)
                 {
                     var currentOT = item.OriginalTitle ?? string.Empty;
                     var tag = $" #{pinyinUpper}";
-                    if (!currentOT.Contains(tag))
+                    if (!currentOT.Contains(tag, StringComparison.OrdinalIgnoreCase))
                     {
                         item.OriginalTitle = string.IsNullOrEmpty(currentOT) ? pinyinUpper : $"{currentOT}{tag}";
                         updated = true;
-                        _logger.Debug("[PinyinSeek] Series: 已更新 OriginalTitle。新值: {0}, ID: {1}", item.OriginalTitle, item.Id);
+                        _logger.Debug($"[PinyinSeek] Series: 已更新 OriginalTitle。新值: {item.OriginalTitle}, ID: {item.Id}");
                     }
                 }
             }
         }
 
-        // 处理国家标签 - 复用 CountryTagHelper
-        if (CountryTagHelper.TryAddCountryTag(item, config, _logger, _typeName))
+        // 处理国家标签
+        if (config.EnableCountryAsTag && itemResult.Result != null)
         {
-            updated = true;
+            string? originCountry = GetOriginCountryFromLookupInfo(itemResult.Result);
+            if (TryAddCountryTag(item, originCountry, _logger, _typeName))
+            {
+                updated = true;
+            }
         }
 
         return updated ? ItemUpdateType.MetadataEdit : ItemUpdateType.None;
@@ -205,7 +225,7 @@ public class PinyinProviderBoxSet : BasePinyinProvider<BoxSet>
 
         if (string.IsNullOrEmpty(nameToProcess))
         {
-            _logger.Debug("[PinyinSeek] BoxSet: 名称为空，跳过处理。Item ID: {0}", item.Id);
+            _logger.Debug($"[PinyinSeek] BoxSet: 名称为空，跳过处理。Item ID: {item.Id}");
             return ItemUpdateType.None;
         }
 
@@ -224,27 +244,31 @@ public class PinyinProviderBoxSet : BasePinyinProvider<BoxSet>
                     item.SetSortNameDirect(pinyinUpper);
                     PinyinProviderHelper.SafeAddLockedField(item, MetadataFields.SortName);
                     updated = true;
-                    _logger.Debug("[PinyinSeek] BoxSet: 已更新 SortName 为 {0}。名称: {1}, ID: {2}", pinyinUpper, item.Name, item.Id);
+                    _logger.Debug($"[PinyinSeek] BoxSet: 已更新 SortName 为 {pinyinUpper}。名称: {item.Name}, ID: {item.Id}");
                 }
 
                 if (config.EnablePinyinSearch)
                 {
                     var currentOT = item.OriginalTitle ?? string.Empty;
                     var tag = $" #{pinyinUpper}";
-                    if (!currentOT.Contains(tag))
+                    if (!currentOT.Contains(tag, StringComparison.OrdinalIgnoreCase))
                     {
                         item.OriginalTitle = string.IsNullOrEmpty(currentOT) ? pinyinUpper : $"{currentOT}{tag}";
                         updated = true;
-                        _logger.Debug("[PinyinSeek] BoxSet: 已更新 OriginalTitle。新值: {0}, ID: {1}", item.OriginalTitle, item.Id);
+                        _logger.Debug($"[PinyinSeek] BoxSet: 已更新 OriginalTitle。新值: {item.OriginalTitle}, ID: {item.Id}");
                     }
                 }
             }
         }
 
-        // 处理国家标签 - 复用 CountryTagHelper
-        if (CountryTagHelper.TryAddCountryTag(item, config, _logger, _typeName))
+        // 处理国家标签
+        if (config.EnableCountryAsTag && itemResult.Result != null)
         {
-            updated = true;
+            string? originCountry = GetOriginCountryFromLookupInfo(itemResult.Result);
+            if (TryAddCountryTag(item, originCountry, _logger, _typeName))
+            {
+                updated = true;
+            }
         }
 
         return updated ? ItemUpdateType.MetadataEdit : ItemUpdateType.None;
