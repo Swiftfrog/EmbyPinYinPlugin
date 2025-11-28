@@ -91,9 +91,34 @@ public class PinyinProviderMovie : BasePinyinProvider<Movie>
         }
 
         // 处理国家标签 - 复用 CountryTagHelper
-        if (CountryTagHelper.TryAddCountryTag(item, config, _logger, _typeName))
+        // 处理国家标签
+        if (config.EnableCountryAsTag)
         {
-            updated = true;
+            string? originCountry = null;
+        
+            // ✅ 从 MovieInfo 获取 origin_country（TMDb 的 origin_country）
+            if (itemResult.ItemLookupInfo is MovieInfo movieInfo)
+            {
+                // ProductionLocations 可能为 null 或空数组
+                if (movieInfo.ProductionLocations?.Length > 0)
+                {
+                    originCountry = movieInfo.ProductionLocations[0];
+                }
+            }
+        
+            if (!string.IsNullOrEmpty(originCountry))
+            {
+                string displayCountry = CountryMapper.GetLocalizedCountry(originCountry);
+                if (!string.IsNullOrEmpty(displayCountry) && 
+                    !item.Tags.Contains(displayCountry, StringComparer.OrdinalIgnoreCase))
+                {
+                    var tags = (item.Tags ?? Array.Empty<string>()).ToList();
+                    tags.Add(displayCountry);
+                    item.Tags = tags.ToArray();
+                    updated = true;
+                    _logger.Debug($"[PinyinSeek] Movie: 已添加国家标签 \"{displayCountry}\"（原值: {originCountry}）。ID: {item.Id}");
+                }
+            }
         }
 
         return updated ? ItemUpdateType.MetadataEdit : ItemUpdateType.None;
