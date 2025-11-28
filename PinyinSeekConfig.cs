@@ -19,29 +19,22 @@ public class PinyinSeekConfig : EditableOptionsBase
     [Description("是否启用拼音搜索功能。OriginalTitle 末尾会被添加 #拼音")]
     public bool EnablePinyinSearch { get; set; } = true;
 
-    /// 是否启用计划任务（批量处理媒体库-拼音排序&搜索）
-    [DisplayName("启用拼音排序或搜索任务")]
-    [Description("媒体库执行拼音排序或搜索任务，全库扫描修改。默认关闭。")]
-    public bool EnableScheduledTask { get; set; } = false; // 默认关闭，避免意外全库扫描
+    [DisplayName("启用国家标签")]
+    [Description("启用后，标签中添加 国家 (代码)")]
+    public bool EnableCountryAsTag { get; set; } = false;
+
+    [DisplayName("启用 IMDb Top 标签")]
+    [Description("启用后，标签中添加 IMDb Top 250")]
+    public bool EnableImdbTopTag { get; set; } = false;
+
+    /// 是否启用计划任务（批量处理媒体库-拼音排序&搜索&标签）
+    [DisplayName("启用插件计划任务")]
+    [Description("是否启用拼音排序/搜索/标签计划任务，全库扫描修改。默认关闭。")]
+    public bool EnableScheduledTask { get; set; } = false;
 
     /// 仅在 SortName 为空时填充拼音（避免覆盖用户自定义排序）
     [DisplayName("启用自定义排序")]
     [Description("打开情况下，自定义排序不会被修订。如果自定义排序是中文，依旧会被拼音化。不理解，请关闭。")]
     public bool OnlyFillWhenEmpty { get; set; } = false;
-    
-    /// 添加original Country
-    [DisplayName("将原产国家作为标签")]
-    [Description("启用后，媒体项的原产国家将自动作为标签添加")]
-    public bool EnableCountryAsTag { get; set; } = false;
-    
-    /// 是否启用国家标签计划任务
-    [DisplayName("启用国家标签任务")]
-    [Description("是否启用批量更新国家标签的计划任务。默认关闭。")]
-    public bool EnableCountryTagTask { get; set; } = false;
-    
-    // =============== 新增 IMDb Top 标签相关配置 ===============
-    [DisplayName("启用 IMDb Top 标签")]
-    [Description("为 IMDb Top 250 电影自动添加 'IMDb Top' 标签")]
-    public bool EnableImdbTopTag { get; set; } = false;
     
 }
