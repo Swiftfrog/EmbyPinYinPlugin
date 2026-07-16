@@ -4,7 +4,6 @@ using MediaBrowser.Model.Entities;
 using System;
 using System.Linq;
 
-using PinyinSeek.Utils;
 
 namespace PinyinSeek.Utils;
 
@@ -31,12 +30,9 @@ public static class PinyinProviderHelper
         if (!string.IsNullOrEmpty(current) && PinyinHelper.ContainsChinese(current))
             return true;
 
-        // 4. 如果开启“仅当为空时填充”且当前非空（且不含中文），跳过
-        if (config.OnlyFillWhenEmpty && !string.IsNullOrEmpty(current))
-            return false;
-
-        // 5. 其他情况：为空 或 未开启保守模式 → 允许更新
-        return string.IsNullOrEmpty(current);
+        // 4. OnlyFillWhenEmpty=true 且 current 非空 → 保留用户自定义，跳过
+        //    OnlyFillWhenEmpty=false → 覆盖模式，允许更新
+        return !config.OnlyFillWhenEmpty || string.IsNullOrEmpty(current);
     }
 
     /// 安全地将字段添加到 LockedFields，避免覆盖已有锁定项。

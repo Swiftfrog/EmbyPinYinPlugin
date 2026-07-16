@@ -1,2 +1,6 @@
 **/.DS_Store
 *.bak
+bin/
+obj/
+.vs/
+*.user

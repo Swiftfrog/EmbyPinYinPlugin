@@ -19,17 +19,9 @@ public class PinyinSeekConfig : EditableOptionsBase
     [Description("是否启用拼音搜索功能。OriginalTitle 末尾会被添加 #拼音")]
     public bool EnablePinyinSearch { get; set; } = true;
 
-    [DisplayName("启用国家标签")]
-    [Description("启用后，标签中添加 国家 (代码)")]
-    public bool EnableCountryAsTag { get; set; } = false;
-
-    [DisplayName("启用 IMDb Top 标签")]
-    [Description("启用后，标签中添加 IMDb Top 250")]
-    public bool EnableImdbTopTag { get; set; } = false;
-
-    /// 是否启用计划任务（批量处理媒体库-拼音排序&搜索&标签）
+    /// 是否启用计划任务（批量处理媒体库-拼音排序&搜索）
     [DisplayName("启用插件计划任务")]
-    [Description("是否启用拼音排序/搜索/标签计划任务，全库扫描修改。默认关闭。")]
+    [Description("是否启用拼音排序/搜索计划任务，全库扫描修改。默认关闭。")]
     public bool EnableScheduledTask { get; set; } = false;
 
     /// 仅在 SortName 为空时填充拼音（避免覆盖用户自定义排序）

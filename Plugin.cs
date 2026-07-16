@@ -31,7 +31,8 @@ public class Plugin : BasePluginSimpleUI<PinyinSeekConfig>, IHasThumbImage
     public Stream GetThumbImage()
     {
         var assembly = GetType().Assembly;
-        return assembly.GetManifestResourceStream("PinyinSeek.PinyinSeekLogo.png");
+        return assembly.GetManifestResourceStream("PinyinSeek.PinyinSeekLogo.png")
+            ?? Stream.Null;
     }
 
     public ImageFormat ThumbImageFormat => ImageFormat.Png;

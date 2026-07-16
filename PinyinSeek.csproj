@@ -4,6 +4,7 @@
     <TargetFramework>net8.0</TargetFramework>
     <AssemblyName>PinyinSeek</AssemblyName>
     <RootNamespace>PinyinSeek</RootNamespace>
+    <Nullable>enable</Nullable>
     <Version>25.11.12</Version>
     <CopyLocalLockFileAssemblies>True</CopyLocalLockFileAssemblies>
     <IncludeSourceRevisionInInformationalVersion>true</IncludeSourceRevisionInInformationalVersion>

@@ -31,7 +31,7 @@ jobs:
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: PinYinSort
+        name: PinyinSeek
         path: bin/Release/net8.0/PinyinSeek.dll
         if-no-files-found: error
         retention-days: 7
